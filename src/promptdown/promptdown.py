@@ -114,3 +114,42 @@ class StructuredPrompt:
             promptdown_string = file.read()
 
         return cls.from_promptdown_string(promptdown_string)
+
+    def to_promptdown_string(self) -> str:
+        lines: list[str] = []
+
+        # Add the name of the prompt
+        lines.append(f"# {self.name}")
+        lines.append("")
+
+        # Add the system message
+        lines.append("## System Message")
+        lines.append(self.system_message)
+        lines.append("")
+
+        # Add the conversation
+        lines.append("## Conversation")
+        lines.append("")
+
+        # Check if any message has a name set
+        include_name_column = any(message.name for message in self.conversation)
+
+        # Add the table headers
+        headers = ["Role"]
+        if include_name_column:
+            headers.append("Name")
+        headers.append("Content")
+        lines.append(f"| {' | '.join(headers)} |")
+        lines.append(f"| {' | '.join(['---'] * len(headers))} |")
+
+        # Add each message in the conversation
+        for message in self.conversation:
+            role = message.role
+            content = message.content
+            if include_name_column:
+                name = message.name if message.name is not None else ""
+                lines.append(f"| {role} | {name} | {content} |")
+            else:
+                lines.append(f"| {role} | {content} |")
+
+        return "\n".join(lines)
