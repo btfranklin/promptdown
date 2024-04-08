@@ -153,3 +153,7 @@ class StructuredPrompt:
                 lines.append(f"| {role} | {content} |")
 
         return "\n".join(lines)
+
+    def to_promptdown_file(self, file_path: str):
+        with open(file_path, "w") as file:
+            file.write(self.to_promptdown_string())
