@@ -1,3 +1,4 @@
+from __future__ import annotations
 import logging
 from dataclasses import dataclass
 
@@ -10,7 +11,7 @@ class Message:
     content: str
     name: str | None = None
 
-    def __eq__(self, other: object):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Message):
             return (
                 self.role.lower() == other.role.lower()
@@ -26,7 +27,7 @@ class StructuredPrompt:
     system_message: str
     conversation: list[Message]
 
-    def __eq__(self, other: object):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, StructuredPrompt):
             return (
                 self.name == other.name
@@ -77,7 +78,7 @@ class StructuredPrompt:
         return conversation
 
     @classmethod
-    def from_promptdown_string(cls, promptdown_string: str):
+    def from_promptdown_string(cls, promptdown_string: str) -> StructuredPrompt:
         name: str | None = None
         system_message: str | None = None
         conversation: list[Message] = []
@@ -111,7 +112,7 @@ class StructuredPrompt:
         return cls(name=name, system_message=system_message, conversation=conversation)
 
     @classmethod
-    def from_promptdown_file(cls, file_path: str):
+    def from_promptdown_file(cls, file_path: str) -> StructuredPrompt:
         promptdown_string = ""
 
         # Check if the file path ends with ".prompt.md"
@@ -163,7 +164,7 @@ class StructuredPrompt:
 
         return "\n".join(lines)
 
-    def to_promptdown_file(self, file_path: str):
+    def to_promptdown_file(self, file_path: str) -> None:
 
         # Check if the file path ends with ".prompt.md"
         if not file_path.endswith(".prompt.md"):
