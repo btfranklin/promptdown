@@ -1,4 +1,7 @@
+import logging
 from dataclasses import dataclass
+
+_LOGGER = logging.getLogger(__name__)
 
 
 @dataclass
@@ -110,6 +113,12 @@ class StructuredPrompt:
     @classmethod
     def from_promptdown_file(cls, file_path: str):
         promptdown_string = ""
+
+        # Check if the file path ends with ".prompt.md"
+        if not file_path.endswith(".prompt.md"):
+            _LOGGER.warning("Promptdown files should end with '.prompt.md'")
+
+        # Load the file from the path
         with open(file_path, "r") as file:
             promptdown_string = file.read()
 
@@ -155,5 +164,10 @@ class StructuredPrompt:
         return "\n".join(lines)
 
     def to_promptdown_file(self, file_path: str):
+
+        # Check if the file path ends with ".prompt.md"
+        if not file_path.endswith(".prompt.md"):
+            _LOGGER.warning("Promptdown files should end with '.prompt.md'")
+
         with open(file_path, "w") as file:
             file.write(self.to_promptdown_string())
