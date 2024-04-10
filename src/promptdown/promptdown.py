@@ -36,7 +36,7 @@ class StructuredPrompt:
         return False
 
     @classmethod
-    def parse_conversation(cls, lines: list[str]) -> list[Message]:
+    def _parse_conversation(cls, lines: list[str]) -> list[Message]:
         conversation: list[Message] = []
         headers: list[str] = []
 
@@ -106,7 +106,7 @@ class StructuredPrompt:
                 "No system message found in the promptdown string. A system message is required."
             )
 
-        conversation = cls.parse_conversation(conversation_lines)
+        conversation = cls._parse_conversation(conversation_lines)
 
         return cls(name=name, system_message=system_message, conversation=conversation)
 
