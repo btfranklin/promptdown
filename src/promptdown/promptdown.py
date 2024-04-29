@@ -1,6 +1,7 @@
 from __future__ import annotations
 import logging
 from dataclasses import dataclass
+import importlib.resources as pkg_resources
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -113,15 +114,50 @@ class StructuredPrompt:
 
     @classmethod
     def from_promptdown_file(cls, file_path: str) -> StructuredPrompt:
-        promptdown_string = ""
+        """
+        Load a promptdown file from a filesystem path.
 
-        # Check if the file path ends with ".prompt.md"
+        Args:
+        file_path: The path to the promptdown file.
+
+        Returns:
+        A StructuredPrompt object loaded from the specified file.
+        """
         if not file_path.endswith(".prompt.md"):
             _LOGGER.warning("Promptdown files should end with '.prompt.md'")
 
-        # Load the file from the path
-        with open(file_path, "r") as file:
-            promptdown_string = file.read()
+        try:
+            with open(file_path, "r") as file:
+                promptdown_string = file.read()
+        except FileNotFoundError:
+            _LOGGER.error(f"File {file_path} not found.")
+            raise
+
+        return cls.from_promptdown_string(promptdown_string)
+
+    @classmethod
+    def from_package_resource(
+        cls, package: str, resource_name: str
+    ) -> StructuredPrompt:
+        """
+        Load a promptdown file as a structured prompt from a package resource.
+
+        Args:
+        package: The package name where the resource is located.
+        resource_name: The name of the promptdown resource file.
+
+        Returns:
+        A StructuredPrompt object loaded from the specified package resource.
+        """
+        if not resource_name.endswith(".prompt.md"):
+            _LOGGER.warning("Promptdown files should end with '.prompt.md'")
+
+        try:
+            with pkg_resources.open_text(package, resource_name) as file:
+                promptdown_string = file.read()
+        except FileNotFoundError:
+            _LOGGER.error(f"File {resource_name} not found in package {package}.")
+            raise
 
         return cls.from_promptdown_string(promptdown_string)
 
