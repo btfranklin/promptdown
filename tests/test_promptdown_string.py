@@ -47,6 +47,8 @@ You are a helpful assistant.
     )
 
     prompt = StructuredPrompt.from_promptdown_string(promptdown_string)
+    assert prompt is not None
+    assert isinstance(prompt, StructuredPrompt)
     assert prompt.name == expected_prompt.name
     assert prompt.system_message == expected_prompt.system_message
     assert prompt.conversation == expected_prompt.conversation
