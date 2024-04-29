@@ -48,7 +48,7 @@ Then, you can parse this file into a `StructuredPrompt` object using Promptdown:
 ```python
 from promptdown import StructuredPrompt
 
-structured_prompt = StructuredPrompt.from_promptdown_file('path/to/my_prompt.prompt.md')
+structured_prompt = StructuredPrompt.from_promptdown_file('path/to/your_prompt_file.prompt.md')
 print(structured_prompt)
 ```
 
