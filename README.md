@@ -91,7 +91,6 @@ For applications where prompts are bundled within Python packages, Promptdown ca
 ```python
 from promptdown import StructuredPrompt
 
-# Replace 'your_package' with the actual package name and 'your_prompt_file.prompt.md' with the resource file name
 structured_prompt = StructuredPrompt.from_package_resource('your_package', 'your_prompt_file.prompt.md')
 print(structured_prompt)
 ```
