@@ -161,6 +161,20 @@ class StructuredPrompt:
 
         return cls.from_promptdown_string(promptdown_string)
 
+    def apply_template_values(self, template_values: dict[str, str]) -> None:
+        """
+        Apply template values to the conversation content where placeholders match the keys in the dictionary.
+
+        Args:
+            template_values (dict[str, str]): A dictionary where keys are the placeholders without double braces
+            and values are the strings to substitute in.
+        """
+        for message in self.conversation:
+            for key, value in template_values.items():
+                placeholder = f"{{{{{key}}}}}"
+                if placeholder in message.content:
+                    message.content = message.content.replace(placeholder, value)
+
     def to_promptdown_string(self) -> str:
         lines: list[str] = []
 
