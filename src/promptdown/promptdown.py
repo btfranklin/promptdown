@@ -1,7 +1,7 @@
 from __future__ import annotations
 import logging
 from dataclasses import dataclass
-import importlib.resources as pkg_resources
+from importlib import resources
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -159,7 +159,8 @@ class StructuredPrompt:
             _LOGGER.warning("Promptdown files should end with '.prompt.md'")
 
         try:
-            with pkg_resources.open_text(package, resource_name) as file:
+            resource_path = resources.files(package) / resource_name
+            with resource_path.open("r", encoding="utf-8") as file:
                 promptdown_string = file.read()
         except FileNotFoundError:
             _LOGGER.error(f"File {resource_name} not found in package {package}.")
