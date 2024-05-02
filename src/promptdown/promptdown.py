@@ -13,12 +13,26 @@ class Message:
     name: str | None = None
 
     def __post_init__(self):
+        """
+        Validate the role to ensure that it does not use the reserved role "System".
+        Raises:
+            ValueError: If the role is set to "System", which is reserved.
+        """
         if self.role.lower() == "system":
             raise ValueError(
                 "The role 'System' is reserved and cannot be used for conversation messages."
             )
 
     def __eq__(self, other: object) -> bool:
+        """
+        Check equality between two Message instances based on role, content, and name.
+
+        Args:
+            other (object): The other object to compare with.
+
+        Returns:
+            bool: True if both objects are Messages and have the same role, content, and name; False otherwise.
+        """
         if isinstance(other, Message):
             return (
                 self.role.lower() == other.role.lower()
@@ -35,6 +49,15 @@ class StructuredPrompt:
     conversation: list[Message]
 
     def __eq__(self, other: object) -> bool:
+        """
+        Check equality between two StructuredPrompt instances based on name, system_message, and conversation.
+
+        Args:
+            other (object): The other object to compare with.
+
+        Returns:
+            bool: True if both are StructuredPrompts with the same name, system_message, and conversation; False otherwise.
+        """
         if isinstance(other, StructuredPrompt):
             return (
                 self.name == other.name
@@ -45,6 +68,15 @@ class StructuredPrompt:
 
     @classmethod
     def _parse_conversation(cls, lines: list[str]) -> list[Message]:
+        """
+        Parse the conversation part of a promptdown string into a list of Message objects.
+
+        Args:
+            lines (list[str]): The lines of the conversation section from a promptdown string.
+
+        Returns:
+            list[Message]: A list of Message instances parsed from the given lines.
+        """
         conversation: list[Message] = []
         headers: list[str] = []
 
@@ -86,6 +118,18 @@ class StructuredPrompt:
 
     @classmethod
     def from_promptdown_string(cls, promptdown_string: str) -> StructuredPrompt:
+        """
+        Parse a structured prompt from a raw promptdown string.
+
+        Args:
+            promptdown_string (str): The complete promptdown formatted string to parse.
+
+        Returns:
+            StructuredPrompt: A new instance of StructuredPrompt based on the parsed string.
+
+        Raises:
+            ValueError: If the promptdown string does not contain necessary sections.
+        """
         name: str | None = None
         system_message: str | None = None
         conversation: list[Message] = []
@@ -121,13 +165,16 @@ class StructuredPrompt:
     @classmethod
     def from_promptdown_file(cls, file_path: str) -> StructuredPrompt:
         """
-        Load a promptdown file from a filesystem path.
+        Load and parse a StructuredPrompt from a file containing promptdown-formatted text.
 
         Args:
-        file_path: The path to the promptdown file.
+            file_path (str): The file system path to the promptdown file.
 
         Returns:
-        A StructuredPrompt object loaded from the specified file.
+            StructuredPrompt: A new instance of StructuredPrompt based on the content of the file.
+
+        Raises:
+            FileNotFoundError: If the specified file is not found.
         """
         if not file_path.endswith(".prompt.md"):
             _LOGGER.warning("Promptdown files should end with '.prompt.md'")
@@ -146,14 +193,17 @@ class StructuredPrompt:
         cls, package: str, resource_name: str
     ) -> StructuredPrompt:
         """
-        Load a promptdown file as a structured prompt from a package resource.
+        Load and parse a StructuredPrompt from a resource within a package.
 
         Args:
-        package: The package name where the resource is located.
-        resource_name: The name of the promptdown resource file.
+            package (str): The name of the package containing the resource.
+            resource_name (str): The name of the resource file to load.
 
         Returns:
-        A StructuredPrompt object loaded from the specified package resource.
+            StructuredPrompt: A new instance of StructuredPrompt based on the resource content.
+
+        Raises:
+            FileNotFoundError: If the resource is not found within the specified package.
         """
         if not resource_name.endswith(".prompt.md"):
             _LOGGER.warning("Promptdown files should end with '.prompt.md'")
@@ -169,6 +219,12 @@ class StructuredPrompt:
         return cls.from_promptdown_string(promptdown_string)
 
     def to_promptdown_string(self) -> str:
+        """
+        Serialize the StructuredPrompt into a promptdown-formatted string.
+
+        Returns:
+            str: The serialized promptdown-formatted string of the StructuredPrompt.
+        """
         lines: list[str] = []
 
         # Add the name of the prompt
@@ -208,7 +264,12 @@ class StructuredPrompt:
         return "\n".join(lines)
 
     def to_promptdown_file(self, file_path: str) -> None:
+        """
+        Write the StructuredPrompt to a file in promptdown format.
 
+        Args:
+            file_path (str): The file system path where the promptdown file will be saved.
+        """
         # Check if the file path ends with ".prompt.md"
         if not file_path.endswith(".prompt.md"):
             _LOGGER.warning("Promptdown files should end with '.prompt.md'")
@@ -218,13 +279,11 @@ class StructuredPrompt:
 
     def apply_template_values(self, template_values: dict[str, str]) -> None:
         """
-        Apply template values to the prompt content where placeholders match the keys in the dictionary.
+        Apply template values to the placeholders in the prompt content, replacing them with the specified values.
 
         Args:
-            template_values (dict[str, str]): A dictionary where keys are the placeholders without double braces
-            and values are the strings to substitute in.
+            template_values (dict[str, str]): A dictionary mapping placeholders (without braces) to their replacement values.
         """
-
         for key, value in template_values.items():
             placeholder = f"{{{{{key}}}}}"  # Define the placeholder once per key
 
