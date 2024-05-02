@@ -10,7 +10,7 @@ def test_apply_template_values_to_object():
         conversation=[
             Message(role="User", content="What is the capital of {{country}}?"),
             Message(
-                role="System", content="The capital of {{country}} is {{capital}}."
+                role="Assistant", content="The capital of {{country}} is {{capital}}."
             ),
         ],
     )
@@ -43,7 +43,7 @@ You are a helpful expert at geography.
 | Role | Content |
 |---|---|
 | User | What is the capital of {{country}}? |
-| System | The capital of {{country}} is {{capital}}. |
+| Assisant | The capital of {{country}} is {{capital}}. |
 """
     structured_prompt = StructuredPrompt.from_promptdown_string(prompt_string)
 
