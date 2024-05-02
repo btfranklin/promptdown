@@ -1,7 +1,7 @@
 from promptdown import StructuredPrompt, Message
 
 
-def test_from_promptdown_without_names():
+def test_from_promptdown_string_without_names():
     promptdown_string = """
 # Example Prompt
 
