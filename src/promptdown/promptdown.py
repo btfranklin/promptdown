@@ -12,6 +12,12 @@ class Message:
     content: str
     name: str | None = None
 
+    def __post_init__(self):
+        if self.role.lower() == "system":
+            raise ValueError(
+                "The role 'System' is reserved and cannot be used for conversation messages."
+            )
+
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Message):
             return (
