@@ -31,8 +31,12 @@ def test_from_package_resource_success():
         ],
     )
 
-    with resources.path("tests", "test.prompt.md"):
-        prompt = StructuredPrompt.from_package_resource("tests", "test.prompt.md")
+    resource_path = resources.files("tests") / "test.prompt.md"
+    with resource_path.open("r", encoding="utf-8") as file:
+        promptdown_string = file.read()
+
+        prompt = StructuredPrompt.from_promptdown_string(promptdown_string)
+
         assert prompt is not None
         assert isinstance(prompt, StructuredPrompt)
         assert prompt.name == expected_prompt.name
