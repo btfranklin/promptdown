@@ -161,20 +161,6 @@ class StructuredPrompt:
 
         return cls.from_promptdown_string(promptdown_string)
 
-    def apply_template_values(self, template_values: dict[str, str]) -> None:
-        """
-        Apply template values to the conversation content where placeholders match the keys in the dictionary.
-
-        Args:
-            template_values (dict[str, str]): A dictionary where keys are the placeholders without double braces
-            and values are the strings to substitute in.
-        """
-        for message in self.conversation:
-            for key, value in template_values.items():
-                placeholder = f"{{{{{key}}}}}"
-                if placeholder in message.content:
-                    message.content = message.content.replace(placeholder, value)
-
     def to_promptdown_string(self) -> str:
         lines: list[str] = []
 
@@ -222,3 +208,24 @@ class StructuredPrompt:
 
         with open(file_path, "w") as file:
             file.write(self.to_promptdown_string())
+
+    def apply_template_values(self, template_values: dict[str, str]) -> None:
+        """
+        Apply template values to the prompt content where placeholders match the keys in the dictionary.
+
+        Args:
+            template_values (dict[str, str]): A dictionary where keys are the placeholders without double braces
+            and values are the strings to substitute in.
+        """
+
+        for key, value in template_values.items():
+            placeholder = f"{{{{{key}}}}}"  # Define the placeholder once per key
+
+            # Replace placeholders in the system message
+            if placeholder in self.system_message:
+                self.system_message = self.system_message.replace(placeholder, value)
+
+            # Replace placeholders in each message in the conversation
+            for message in self.conversation:
+                if placeholder in message.content:
+                    message.content = message.content.replace(placeholder, value)
