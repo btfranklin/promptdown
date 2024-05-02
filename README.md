@@ -52,11 +52,7 @@ structured_prompt = StructuredPrompt.from_promptdown_file('path/to/your_prompt_f
 print(structured_prompt)
 ```
 
-### Advanced Usage
-
-Promptdown provides several methods for loading and utilizing structured prompts beyond the basic file usage. Here are more advanced ways to integrate Promptdown into your projects:
-
-#### Parsing a Prompt from a String
+### Parsing a Prompt from a String
 
 For scenarios where you have the prompt data as a string (perhaps dynamically generated or retrieved from an external source), you can parse it directly:
 
@@ -84,7 +80,7 @@ structured_prompt = StructuredPrompt.from_promptdown_string(promptdown_string)
 print(structured_prompt)
 ```
 
-#### Loading Prompts from Package Resources
+### Loading Prompts from Package Resources
 
 For applications where prompts are bundled within Python packages, Promptdown can load prompts directly from these resources. This approach is useful for distributing prompts alongside Python libraries or applications:
 
@@ -96,6 +92,56 @@ print(structured_prompt)
 ```
 
 This method facilitates easy management of prompts within a package, ensuring that they can be versioned, shared, and reused effectively.
+
+### Using Template Strings
+
+Promptdown supports the use of template strings within your prompts, allowing for dynamic customization of both system messages and conversation content. This feature is particularly useful when you need to tailor prompts based on specific contexts or user data.
+
+#### Defining Template Strings
+
+To incorporate template strings in your Promptdown files, use double curly braces `{{variable}}` around placeholders that you intend to replace dynamically. Here is an example of how to use template strings in a prompt:
+
+```markdown
+# My Prompt
+
+## System Message
+
+You are a helpful assistant in {{topic}}.
+
+## Conversation
+
+| Role      | Content                                         |
+|-----------|-------------------------------------------------|
+| User      | Hi, can you help me with {{topic}}?             |
+| Assistant | Of course! What specifically do you need help with in {{topic}}?|
+| User      | I'm having trouble understanding {{concept}}.  |
+| Assistant | No problem! Let's dive into {{concept}} together. |
+```
+
+#### Applying Template Values
+
+Once you have defined a prompt with placeholders, you can replace these placeholders by passing a dictionary of template values to the `apply_template_values` method. Here's how you can apply template values to your prompt:
+
+```python
+from promptdown import StructuredPrompt
+
+# Load your structured prompt from a file or string that contains template placeholders
+structured_prompt = StructuredPrompt.from_promptdown_string(promptdown_string)
+
+# Define the template values to apply
+template_values = {
+    "topic": "Python programming",
+    "concept": "decorators"
+}
+
+# Apply the template values
+structured_prompt.apply_template_values(template_values)
+
+# Output the updated prompt
+print(structured_prompt)
+```
+
+This will replace `{{topic}}` with "Python programming" and `{{concept}}` with "decorators" in the system message and conversation content. Using template strings in Promptdown allows for more flexible and context-sensitive interactions with language models.
 
 ## Contributing
 
