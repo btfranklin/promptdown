@@ -52,6 +52,8 @@ structured_prompt = StructuredPrompt.from_promptdown_file('path/to/your_prompt_f
 print(structured_prompt)
 ```
 
+**Please note** that the `Conversation` section can be omitted, but the `System Message` section is always required.
+
 ### Parsing a Prompt from a String
 
 For scenarios where you have the prompt data as a string (perhaps dynamically generated or retrieved from an external source), you can parse it directly:
