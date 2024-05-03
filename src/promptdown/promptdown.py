@@ -46,7 +46,7 @@ class Message:
 class StructuredPrompt:
     name: str
     system_message: str
-    conversation: list[Message]
+    conversation: list[Message] | None = None
 
     def __eq__(self, other: object) -> bool:
         """
@@ -132,7 +132,7 @@ class StructuredPrompt:
         """
         name: str | None = None
         system_message: str | None = None
-        conversation: list[Message] = []
+        conversation: list[Message] | None = []
         current_section: str | None = None
         conversation_lines: list[str] = []
 
@@ -158,7 +158,10 @@ class StructuredPrompt:
                 "No system message found in the promptdown string. A system message is required."
             )
 
-        conversation = cls._parse_conversation(conversation_lines)
+        if not conversation_lines:
+            conversation = None
+        else:
+            conversation = cls._parse_conversation(conversation_lines)
 
         return cls(name=name, system_message=system_message, conversation=conversation)
 
@@ -236,30 +239,31 @@ class StructuredPrompt:
         lines.append(self.system_message)
         lines.append("")
 
-        # Add the conversation
-        lines.append("## Conversation")
-        lines.append("")
+        if self.conversation is not None:
+            # Add the conversation
+            lines.append("## Conversation")
+            lines.append("")
 
-        # Check if any message has a name set
-        include_name_column = any(message.name for message in self.conversation)
+            # Check if any message has a name set
+            include_name_column = any(message.name for message in self.conversation)
 
-        # Add the table headers
-        headers = ["Role"]
-        if include_name_column:
-            headers.append("Name")
-        headers.append("Content")
-        lines.append(f"| {' | '.join(headers)} |")
-        lines.append(f"| {' | '.join(['---'] * len(headers))} |")
-
-        # Add each message in the conversation
-        for message in self.conversation:
-            role = message.role
-            content = message.content
+            # Add the table headers
+            headers = ["Role"]
             if include_name_column:
-                name = message.name if message.name is not None else ""
-                lines.append(f"| {role} | {name} | {content} |")
-            else:
-                lines.append(f"| {role} | {content} |")
+                headers.append("Name")
+            headers.append("Content")
+            lines.append(f"| {' | '.join(headers)} |")
+            lines.append(f"| {' | '.join(['---'] * len(headers))} |")
+
+            # Add each message in the conversation
+            for message in self.conversation:
+                role = message.role
+                content = message.content
+                if include_name_column:
+                    name = message.name if message.name is not None else ""
+                    lines.append(f"| {role} | {name} | {content} |")
+                else:
+                    lines.append(f"| {role} | {content} |")
 
         return "\n".join(lines)
 
@@ -292,6 +296,7 @@ class StructuredPrompt:
                 self.system_message = self.system_message.replace(placeholder, value)
 
             # Replace placeholders in each message in the conversation
-            for message in self.conversation:
-                if placeholder in message.content:
-                    message.content = message.content.replace(placeholder, value)
+            if self.conversation is not None:
+                for message in self.conversation:
+                    if placeholder in message.content:
+                        message.content = message.content.replace(placeholder, value)
