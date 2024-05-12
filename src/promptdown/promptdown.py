@@ -67,20 +67,23 @@ class StructuredPrompt:
         return False
 
     @classmethod
-    def _parse_conversation(cls, lines: list[str]) -> list[Message]:
+    def _parse_conversation_table(cls, lines: list[str]) -> list[Message]:
         """
-        Parse the conversation part of a promptdown string into a list of Message objects.
+        Parse the conversation from the given list of lines using the table-based format.
+
+        This method assumes that the conversation section follows a table structure,
+        where each row represents a message with columns like Role, Name (optional),
+        and Content.
 
         Args:
-            lines (list[str]): The lines of the conversation section from a promptdown string.
+            lines (list[str]): A list of lines containing the conversation section.
 
         Returns:
-            list[Message]: A list of Message instances parsed from the given lines.
+            list[Message]: A list of Message objects representing the parsed conversation.
         """
         conversation: list[Message] = []
         headers: list[str] = []
 
-        # Iterate over each line in the input lines
         for line in lines:
             # Check if the line starts with "|", indicating a conversation row
             if line.startswith("|"):
@@ -115,6 +118,91 @@ class StructuredPrompt:
 
         # Return the parsed conversation list
         return conversation
+
+    @classmethod
+    def _parse_conversation_simplified(cls, lines: list[str]) -> list[Message]:
+        """
+        Parse the conversation from the given list of lines using the simplified format.
+
+        In this format, each message is identified by the role specified with double asterisks
+        (**Role:**) at the beginning of the message. Each subsequent line without a new role
+        will be considered part of the message's content until the next role line is encountered.
+
+        Args:
+            lines (list[str]): A list of lines containing the conversation section.
+
+        Returns:
+            list[Message]: A list of Message objects representing the parsed conversation.
+        """
+        conversation: list[Message] = []
+        known_roles = {"User", "Assistant"}
+        role: str | None = None
+        content: list[str] = []
+
+        for line in lines:
+            # Strip leading/trailing whitespace from the current line
+            line_strip = line.strip()
+
+            # If the line starts and ends with double asterisks, it's a role indicator
+            if line_strip.startswith("**") and line_strip.endswith(":**"):
+                # If a role is already set and there is accumulated content,
+                # add the message to the conversation list
+                if role and content:
+                    conversation.append(
+                        Message(role=role, content=" ".join(content).strip())
+                    )
+                    # Clear content to start collecting the next message
+                    content = []
+
+                # Extract the role name from the asterisks and colon, e.g., "**User:**"
+                role_line = line_strip.strip("*")
+                role, _, _ = role_line.partition(":")
+
+                # If the role is one of the known roles, update the role variable
+                if role in known_roles:
+                    role = role.strip()
+                else:
+                    _LOGGER.warning(
+                        f"Unknown role '{role}' encountered in conversation."
+                    )
+                    role = None
+            else:
+                # If it's not a role indicator, consider it part of the message content
+                content.append(line)
+
+        # If there is a role set and accumulated content after the last line,
+        # append the last message to the conversation
+        if role and content:
+            conversation.append(Message(role=role, content=" ".join(content).strip()))
+
+        # Return the list of parsed messages
+        return conversation
+
+    @classmethod
+    def _parse_conversation(cls, lines: list[str]) -> list[Message]:
+        """
+        Parse the conversation part of a promptdown string into a list of Message objects.
+
+        Args:
+            lines (list[str]): The lines of the conversation section from a promptdown string.
+
+        Returns:
+            list[Message]: A list of Message instances parsed from the given lines.
+        """
+        # Skip empty lines until finding a non-whitespace character
+        for line in lines:
+            stripped_line = line.strip()
+
+            # If we find a line with non-whitespace content, check its first character
+            if stripped_line:
+                # If the first non-whitespace character is a pipe, it's a table format
+                if stripped_line[0] == "|":
+                    return cls._parse_conversation_table(lines)
+                # Otherwise, assume the simplified format
+                return cls._parse_conversation_simplified(lines)
+
+        # If no content is found, return an empty list
+        return []
 
     @classmethod
     def from_promptdown_string(cls, promptdown_string: str) -> StructuredPrompt:

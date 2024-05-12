@@ -107,3 +107,48 @@ You are a helpful assistant.
 
     prompt = StructuredPrompt.from_promptdown_string(promptdown_string)
     assert prompt == expected_prompt
+
+
+def test_from_promptdown_string_with_simplified_conversation_format():
+    promptdown_string = """
+# Test Prompt
+
+## System Message
+
+This is a test system message.
+
+## Conversation
+
+**User:**
+Hello, how are you?
+
+**Assistant:**
+I'm good, thank you! How can I assist you today?
+
+**User:**
+Could you help me with my project?
+
+**Assistant:**
+Absolutely! What do you need help with?
+"""
+
+    expected_prompt = StructuredPrompt(
+        name="Test Prompt",
+        system_message="This is a test system message.",
+        conversation=[
+            Message(role="User", content="Hello, how are you?"),
+            Message(
+                role="Assistant",
+                content="I'm good, thank you! How can I assist you today?",
+            ),
+            Message(role="User", content="Could you help me with my project?"),
+            Message(
+                role="Assistant", content="Absolutely! What do you need help with?"
+            ),
+        ],
+    )
+
+    actual_prompt = StructuredPrompt.from_promptdown_string(promptdown_string)
+    assert (
+        actual_prompt == expected_prompt
+    ), "Failed to parse simplified conversation format correctly."
