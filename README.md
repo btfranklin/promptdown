@@ -82,6 +82,37 @@ structured_prompt = StructuredPrompt.from_promptdown_string(promptdown_string)
 print(structured_prompt)
 ```
 
+### Simplified Conversation Format
+
+For scenarios where you need to include multi-line messages or prefer a more readable format, Promptdown also supports a simplified conversation format. This alternative is particularly useful for writing extended dialogues or when the conversation involves complex instructions that span multiple lines.
+
+In the simplified format, roles are marked with bold text (**Role:**), and each message can extend over multiple lines, allowing for more expressive and detailed conversations. Here's how you can structure a conversation using this format:
+
+```markdown
+# My Prompt
+
+## System Message
+
+You are a helpful assistant.
+
+## Conversation
+
+**User:**  
+Hello, how are you doing today?  
+I need some help with a project.
+
+**Assistant:**  
+I'm here to help. What's the issue you're encountering with your project?
+
+**User:**  
+I'm trying to integrate an API, but I keep running into errors.
+
+**Assistant:**  
+Let's go through the integration process together. Can you show me the code where you're making the API calls?
+```
+
+The simplified format is especially well-suited for complex templates where multiple template values and introductory message text need to be combined.
+
 ### Loading Prompts from Package Resources
 
 For applications where prompts are bundled within Python packages, Promptdown can load prompts directly from these resources. This approach is useful for distributing prompts alongside Python libraries or applications:
