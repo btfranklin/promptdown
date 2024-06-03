@@ -105,5 +105,8 @@ ENV/
 .vscode/
 .idea/
 
+# macOS
+.DS_Store
+
 # PDM
 .pdm-python
