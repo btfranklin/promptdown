@@ -73,7 +73,7 @@ You are a helpful assistant.
 | Role      | Content                                     |
 |-----------|---------------------------------------------|
 | User      | Hi, can you help me?                        |
-| Assistant | Of course! What do you need assistance with?|
+| Assistant | Of course! What do you need assistance with? |
 | User      | I'm having trouble with my code.            |
 | Assistant | I'd be happy to help. What seems to be the problem? |
 """
@@ -132,7 +132,7 @@ Promptdown supports the use of template strings within your prompts, allowing fo
 
 #### Defining Template Strings
 
-To incorporate template strings in your Promptdown files, use double curly braces `{{variable}}` around placeholders that you intend to replace dynamically. Here is an example of how to use template strings in a prompt:
+To incorporate template strings in your Promptdown files, use curly braces `{variable}` around placeholders that you intend to replace dynamically. Here is an example of how to use template strings in a prompt:
 
 ```markdown
 # My Prompt
