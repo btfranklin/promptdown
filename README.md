@@ -139,16 +139,16 @@ To incorporate template strings in your Promptdown files, use double curly brace
 
 ## System Message
 
-You are a helpful assistant in {{topic}}.
+You are a helpful assistant in {topic}.
 
 ## Conversation
 
 | Role      | Content                                         |
 |-----------|-------------------------------------------------|
-| User      | Hi, can you help me with {{topic}}?             |
-| Assistant | Of course! What specifically do you need help with in {{topic}}?|
-| User      | I'm having trouble understanding {{concept}}.  |
-| Assistant | No problem! Let's dive into {{concept}} together. |
+| User      | Hi, can you help me with {topic}?             |
+| Assistant | Of course! What specifically do you need help with in {topic}? |
+| User      | I'm having trouble understanding {concept}.  |
+| Assistant | No problem! Let's dive into {concept} together. |
 ```
 
 #### Applying Template Values
@@ -174,7 +174,7 @@ structured_prompt.apply_template_values(template_values)
 print(structured_prompt)
 ```
 
-This will replace `{{topic}}` with "Python programming" and `{{concept}}` with "decorators" in the system message and conversation content. Using template strings in Promptdown allows for more flexible and context-sensitive interactions with language models.
+This will replace `{topic}` with "Python programming" and `{concept}` with "decorators" in the system message and conversation content. Using template strings in Promptdown allows for more flexible and context-sensitive interactions with language models.
 
 ## Contributing
 

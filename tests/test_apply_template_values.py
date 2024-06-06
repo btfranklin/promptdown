@@ -6,12 +6,10 @@ def test_apply_template_values_to_object():
     # Create a structured prompt with placeholders
     structured_prompt = StructuredPrompt(
         name="Test Prompt",
-        system_message="You are a helpful expert at {{topic}}.",
+        system_message="You are a helpful expert at {topic}.",
         conversation=[
-            Message(role="User", content="What is the capital of {{country}}?"),
-            Message(
-                role="Assistant", content="The capital of {{country}} is {{capital}}."
-            ),
+            Message(role="User", content="What is the capital of {country}?"),
+            Message(role="Assistant", content="The capital of {country} is {capital}."),
         ],
     )
 
@@ -23,10 +21,9 @@ def test_apply_template_values_to_object():
 
     # Assertions to check if the placeholders are correctly replaced
     assert structured_prompt.system_message == "You are a helpful expert at geography."
-    assert structured_prompt.conversation[0].content == "What is the capital of France?"
-    assert (
-        structured_prompt.conversation[1].content == "The capital of France is Paris."
-    )
+    if conversation := structured_prompt.conversation:
+        assert conversation[0].content == "What is the capital of France?"
+        assert conversation[1].content == "The capital of France is Paris."
 
 
 def test_apply_template_values_to_string():
@@ -37,14 +34,14 @@ def test_apply_template_values_to_string():
 
 ## System Message
 
-You are a helpful expert at {{topic}}.
+You are a helpful expert at {topic}.
 
 ## Conversation
 
 | Role | Content |
 |---|---|
-| User | What is the capital of {{country}}? |
-| Assistant | The capital of {{country}} is {{capital}}. |
+| User | What is the capital of {country}? |
+| Assistant | The capital of {country} is {capital}. |
 """
     structured_prompt = StructuredPrompt.from_promptdown_string(prompt_string)
 
@@ -56,7 +53,6 @@ You are a helpful expert at {{topic}}.
 
     # Assertions to check if the placeholders are correctly replaced
     assert structured_prompt.system_message == "You are a helpful expert at geography."
-    assert structured_prompt.conversation[0].content == "What is the capital of France?"
-    assert (
-        structured_prompt.conversation[1].content == "The capital of France is Paris."
-    )
+    if conversation := structured_prompt.conversation:
+        assert conversation[0].content == "What is the capital of France?"
+        assert conversation[1].content == "The capital of France is Paris."

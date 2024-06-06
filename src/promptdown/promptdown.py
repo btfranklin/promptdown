@@ -374,17 +374,12 @@ class StructuredPrompt:
         Apply template values to the placeholders in the prompt content, replacing them with the specified values.
 
         Args:
-            template_values (dict[str, str]): A dictionary mapping placeholders (without braces) to their replacement values.
+            template_values (dict[str, str]): A dictionary mapping placeholders to their replacement values.
         """
-        for key, value in template_values.items():
-            placeholder = f"{{{{{key}}}}}"  # Define the placeholder once per key
+        # Replace placeholders in the system message
+        self.system_message = self.system_message.format(**template_values)
 
-            # Replace placeholders in the system message
-            if placeholder in self.system_message:
-                self.system_message = self.system_message.replace(placeholder, value)
-
-            # Replace placeholders in each message in the conversation
-            if self.conversation is not None:
-                for message in self.conversation:
-                    if placeholder in message.content:
-                        message.content = message.content.replace(placeholder, value)
+        # Replace placeholders in each message in the conversation
+        if self.conversation is not None:
+            for message in self.conversation:
+                message.content = message.content.format(**template_values)
