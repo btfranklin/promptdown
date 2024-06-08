@@ -1,6 +1,6 @@
 [project]
 name = "promptdown"
-version = "0.6.0"
+version = "0.7.0"
 description = "A package for loading promptdown files, which are a special type of markdown file for defining structured LLM prompts"
 authors = [
     {name = "B.T. Franklin", email = "brandon.franklin@gmail.com"},
@@ -35,6 +35,6 @@ excludes = ["tests/**"]
 
 [tool.pdm.dev-dependencies]
 dev = [
-    "pytest>=8.2.1",
+    "pytest>=8.2.2",
     "flake8>=7.0.0",
 ]
