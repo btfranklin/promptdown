@@ -369,6 +369,28 @@ class StructuredPrompt:
         with open(file_path, "w") as file:
             file.write(self.to_promptdown_string())
 
+    def to_chat_completion_messages(self) -> list[dict[str, str]]:
+        """
+        Convert the StructuredPrompt's conversation into the structure needed for a chat completion API client.
+
+        Returns:
+            list[dict[str, str]]: A list of message dictionaries suitable for a chat completion API client.
+        """
+        messages: list[dict[str, str]] = []
+
+        # Start with the system message
+        messages.append({"role": "system", "content": self.system_message})
+
+        # Add the conversation messages
+        if self.conversation is not None:
+            for message in self.conversation:
+                msg = {"role": message.role.lower(), "content": message.content}
+                if message.name:
+                    msg["name"] = message.name
+                messages.append(msg)
+
+        return messages
+
     def apply_template_values(self, template_values: dict[str, str]) -> None:
         """
         Apply template values to the placeholders in the prompt content, replacing them with the specified values.
