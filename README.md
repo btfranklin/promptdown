@@ -35,11 +35,11 @@ You are a helpful assistant.
 
 ## Conversation
 
-| Role      | Content                                     |
-|-----------|---------------------------------------------|
-| User      | Hi, can you help me?                        |
-| Assistant | Of course! What do you need assistance with?|
-| User      | I'm having trouble with my code.            |
+| Role      | Content                                      |
+|-----------|----------------------------------------------|
+| User      | Hi, can you help me?                         |
+| Assistant | Of course! What do you need assistance with? |
+| User      | I'm having trouble with my code.             |
 | Assistant | I'd be happy to help. What seems to be the problem? |
 ```
 
@@ -112,6 +112,40 @@ Let's go through the integration process together. Can you show me the code wher
 ```
 
 The simplified format is especially well-suited for complex templates where multiple template values and introductory message text need to be combined.
+
+### Converting to Chat Completion Messages
+
+The `to_chat_completion_messages` method converts a `StructuredPrompt` instance's conversation into a list of dictionaries suitable for chat completion API clients. This is useful when you need to send the structured conversation to an API that expects messages in a specific format. Here's an example of how to use this method:
+
+```python
+from promptdown import StructuredPrompt
+
+promptdown_string = """
+# My Prompt
+
+## System Message
+
+You are a helpful assistant.
+
+## Conversation
+
+| Role      | Content                                      |
+|-----------|----------------------------------------------|
+| User      | Hi, can you help me?                         |
+| Assistant | Of course! What do you need assistance with? |
+| User      | I'm having trouble with my code.             |
+"""
+
+structured_prompt = StructuredPrompt.from_promptdown_string(promptdown_string)
+messages_from_promptdown = structured_prompt.to_chat_completion_messages()
+
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=messages_from_promptdown,
+    temperature=0.7,
+    max_tokens=300,
+)
+```
 
 ### Loading Prompts from Package Resources
 
