@@ -2,6 +2,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from importlib import resources
+from typing import Any
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -369,14 +370,16 @@ class StructuredPrompt:
         with open(file_path, "w") as file:
             file.write(self.to_promptdown_string())
 
-    def to_chat_completion_messages(self) -> list[dict[str, str]]:
+    def to_chat_completion_messages(
+        self,
+    ) -> list[dict[str, str | list[dict[str, Any]]]]:
         """
         Convert the StructuredPrompt's conversation into the structure needed for a chat completion API client.
 
         Returns:
-            list[dict[str, str]]: A list of message dictionaries suitable for a chat completion API client.
+            list[dict[str, str | list[dict[str, Any]]]]: A list of message dictionaries suitable for a chat completion API client.
         """
-        messages: list[dict[str, str]] = []
+        messages: list[dict[str, str | list[dict[str, Any]]]] = []
 
         # Start with the system message
         messages.append({"role": "system", "content": self.system_message})
@@ -384,7 +387,10 @@ class StructuredPrompt:
         # Add the conversation messages
         if self.conversation is not None:
             for message in self.conversation:
-                msg = {"role": message.role.lower(), "content": message.content}
+                content: list[dict[str, Any]] = [
+                    {"type": "text", "text": message.content}
+                ]
+                msg = {"role": message.role.lower(), "content": content}
                 if message.name:
                     msg["name"] = message.name
                 messages.append(msg)

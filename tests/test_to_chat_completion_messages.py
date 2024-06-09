@@ -28,24 +28,50 @@ def test_to_chat_completion_messages_without_names():
     )
 
     expected_messages = [
-        {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": "Hi, can you help me?"},
         {
-            "role": "assistant",
-            "content": "Of course! What do you need assistance with?",
-        },
-        {"role": "user", "content": "I'm having trouble with my code."},
-        {
-            "role": "assistant",
-            "content": "I'd be happy to help. What seems to be the problem?",
+            "role": "system",
+            "content": "You are a helpful assistant.",
         },
         {
             "role": "user",
-            "content": 'I\'m getting an error message that says "undefined variable".',
+            "content": [{"type": "text", "text": "Hi, can you help me?"}],
         },
         {
             "role": "assistant",
-            "content": "That error usually occurs when you try to use a variable that hasn't been declared or assigned a value. Can you show me the code where you're encountering this error?",
+            "content": [
+                {"type": "text", "text": "Of course! What do you need assistance with?"}
+            ],
+        },
+        {
+            "role": "user",
+            "content": [{"type": "text", "text": "I'm having trouble with my code."}],
+        },
+        {
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "I'd be happy to help. What seems to be the problem?",
+                }
+            ],
+        },
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "text",
+                    "text": 'I\'m getting an error message that says "undefined variable".',
+                }
+            ],
+        },
+        {
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "That error usually occurs when you try to use a variable that hasn't been declared or assigned a value. Can you show me the code where you're encountering this error?",
+                }
+            ],
         },
     ]
 
@@ -87,30 +113,61 @@ def test_to_chat_completion_messages_with_names():
 
     expected_messages = [
         {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": "Hi, can you help me?", "name": "Alice"},
-        {
-            "role": "assistant",
-            "content": "Of course! What do you need assistance with?",
-            "name": "Bot",
-        },
         {
             "role": "user",
-            "content": "I'm having trouble with my code.",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "Hi, can you help me?",
+                }
+            ],
             "name": "Alice",
         },
         {
             "role": "assistant",
-            "content": "I'd be happy to help. What seems to be the problem?",
+            "content": [
+                {"type": "text", "text": "Of course! What do you need assistance with?"}
+            ],
             "name": "Bot",
         },
         {
             "role": "user",
-            "content": 'I\'m getting an error message that says "undefined variable".',
+            "content": [
+                {
+                    "type": "text",
+                    "text": "I'm having trouble with my code.",
+                }
+            ],
             "name": "Alice",
         },
         {
             "role": "assistant",
-            "content": "That error usually occurs when you try to use a variable that hasn't been declared or assigned a value. Can you show me the code where you're encountering this error?",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "I'd be happy to help. What seems to be the problem?",
+                }
+            ],
+            "name": "Bot",
+        },
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "text",
+                    "text": 'I\'m getting an error message that says "undefined variable".',
+                }
+            ],
+            "name": "Alice",
+        },
+        {
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "That error usually occurs when you try to use a variable that hasn't been declared or assigned a value. Can you show me the code where you're encountering this error?",
+                }
+            ],
             "name": "Bot",
         },
     ]
