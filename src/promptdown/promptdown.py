@@ -220,32 +220,46 @@ class StructuredPrompt:
             ValueError: If the promptdown string does not contain necessary sections.
         """
         name: str | None = None
-        system_message: str | None = None
-        conversation: list[Message] | None = []
         current_section: str | None = None
+        system_message: str | None = None
+        system_message_lines: list[str] = []
+        conversation: list[Message] | None = []
         conversation_lines: list[str] = []
 
         lines = promptdown_string.split("\n")
         for line in lines:
-            line = line.strip()
+            stripped_line = line.strip()
 
-            if line.startswith("# "):
-                name = line[2:].strip()
-            elif line.startswith("## "):
-                current_section = line[3:].strip().lower()
-            elif current_section == "system message" and line:
-                system_message = line
-            elif current_section == "conversation":
-                conversation_lines.append(line)
+            if stripped_line.startswith(
+                "# "
+            ):  # Found the prompt name section, e.g., "# My Prompt"
+                name = stripped_line[2:].strip()
+                current_section = None
+            elif stripped_line.startswith(
+                "## "
+            ):  # Found a section header, e.g., "## Conversation"
+                current_section = stripped_line[3:].strip().lower()
+            elif (
+                current_section == "system message"
+            ):  # We are in the system message section, so this is a line of the system message
+                if stripped_line:
+                    system_message_lines.append(stripped_line)
+            elif (
+                current_section == "conversation"
+            ):  # We are in the conversation section, so this is a line of the conversation
+                conversation_lines.append(stripped_line)
 
         if name is None:
             raise ValueError(
                 "No prompt name found in the promptdown string. A prompt name is required."
             )
-        if system_message is None:
+
+        if not system_message_lines:
             raise ValueError(
                 "No system message found in the promptdown string. A system message is required."
             )
+
+        system_message = "\n".join(system_message_lines)
 
         if not conversation_lines:
             conversation = None

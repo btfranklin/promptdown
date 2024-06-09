@@ -4,7 +4,7 @@ from promptdown import StructuredPrompt, Message
 def test_to_chat_completion_messages_without_names():
     prompt = StructuredPrompt(
         name="Example Prompt",
-        system_message="You are a helpful assistant.",
+        system_message="You are a helpful assistant.\n\nYou should try to provide clear and concise answers to the user's questions.",
         conversation=[
             Message(role="User", content="Hi, can you help me?"),
             Message(
@@ -30,7 +30,7 @@ def test_to_chat_completion_messages_without_names():
     expected_messages = [
         {
             "role": "system",
-            "content": "You are a helpful assistant.",
+            "content": "You are a helpful assistant.\n\nYou should try to provide clear and concise answers to the user's questions.",
         },
         {
             "role": "user",

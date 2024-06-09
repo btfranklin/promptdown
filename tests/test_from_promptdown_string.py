@@ -9,6 +9,8 @@ def test_from_promptdown_string_without_names():
 
 You are a helpful assistant.
 
+You should try to provide clear and concise answers to the user's questions.
+
 ## Conversation
 
 | Role    | Content                  |
@@ -23,7 +25,7 @@ You are a helpful assistant.
 
     expected_prompt = StructuredPrompt(
         name="Example Prompt",
-        system_message="You are a helpful assistant.",
+        system_message="You are a helpful assistant.\nYou should try to provide clear and concise answers to the user's questions.",
         conversation=[
             Message(role="User", content="Hi, can you help me?"),
             Message(
@@ -117,6 +119,8 @@ def test_from_promptdown_string_with_simplified_conversation_format():
 
 This is a test system message.
 
+This is a second line of the system message.
+
 ## Conversation
 
 **User:**
@@ -134,7 +138,7 @@ Absolutely! What do you need help with?
 
     expected_prompt = StructuredPrompt(
         name="Test Prompt",
-        system_message="This is a test system message.",
+        system_message="This is a test system message.\nThis is a second line of the system message.",
         conversation=[
             Message(role="User", content="Hello, how are you?"),
             Message(
