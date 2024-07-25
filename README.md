@@ -1,4 +1,4 @@
-![Promptdown banner](https://github.com/btfranklin/promptdown/blob/main/.github/social%20preview/promptdown_social_preview.png "Promptdown: structured instructions and conversations in markdown format for working with LLMs")
+![Promptdown banner](https://raw.githubusercontent.com/btfranklin/promptdown/main/.github/social%20preview/promptdown_social_preview.png "Promptdown: structured instructions and conversations in markdown format for working with LLMs")
 
 # Promptdown
 
