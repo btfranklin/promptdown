@@ -1,4 +1,4 @@
-![Promptdown banner](assets/promptdown_banner.png "Promptdown: structured instructions and conversations in markdown format for working with LLMs")
+![Promptdown banner](assets/promptdown_banner.jpg "Promptdown: structured instructions and conversations in markdown format for working with LLMs")
 
 # Promptdown
 
