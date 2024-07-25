@@ -1,6 +1,6 @@
 [project]
 name = "promptdown"
-version = "0.7.3"
+version = "0.7.4"
 description = "A package for loading promptdown files, which are a special type of markdown file for defining structured LLM prompts"
 authors = [
     {name = "B.T. Franklin", email = "brandon.franklin@gmail.com"},
@@ -22,6 +22,8 @@ classifiers = [
 [project.urls]
 Homepage = "https://github.com/btfranklin/promptdown"
 Issues = "https://github.com/btfranklin/promptdown/issues"
+Changelog = "https://github.com/btfranklin/promptdown/releases"
+Repository = "https://github.com/btfranklin/promptdown.git"
 
 [build-system]
 requires = ["pdm-backend"]
@@ -32,7 +34,6 @@ distribution = true
 
 [tool.pdm.build]
 excludes = ["tests/**"]
-source-includes = ["assets/*"]
 
 [tool.pdm.dev-dependencies]
 dev = [
