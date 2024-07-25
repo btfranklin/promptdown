@@ -1,6 +1,6 @@
-![Promptdown banner](https://raw.githubusercontent.com/btfranklin/promptdown/main/.github/social%20preview/promptdown_social_preview.png "Promptdown: structured instructions and conversations in markdown format for working with LLMs")
-
 # Promptdown
+
+![Promptdown banner](https://raw.githubusercontent.com/btfranklin/promptdown/main/.github/social%20preview/promptdown_social_preview.png "Promptdown: structured instructions and conversations in markdown format for working with LLMs")
 
 Promptdown is a Python package that allows you to express structured prompts for language models in a markdown format. It provides a simple and intuitive way to define and manage prompts, making it easier to work with language models in your projects.
 
