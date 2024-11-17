@@ -404,7 +404,7 @@ class StructuredPrompt:
                 content: list[dict[str, Any]] = [
                     {"type": "text", "text": message.content}
                 ]
-                msg = {"role": message.role.lower(), "content": content}
+                msg: dict[str, Any] = {"role": message.role.lower(), "content": content}
                 if message.name:
                     msg["name"] = message.name
                 messages.append(msg)
