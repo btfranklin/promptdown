@@ -1,5 +1,6 @@
 from __future__ import annotations
 import logging
+import re
 from dataclasses import dataclass
 from importlib import resources
 from typing import Any
@@ -414,14 +415,26 @@ class StructuredPrompt:
     def apply_template_values(self, template_values: dict[str, str]) -> None:
         """
         Apply template values to the placeholders in the prompt content, replacing them with the specified values.
+        NOTE: Template values are not applied if the placeholder is within a triple-backtick code block,
+        as this is likely a JSON example.
 
         Args:
             template_values (dict[str, str]): A dictionary mapping placeholders to their replacement values.
         """
+
+        def replace_placeholders(text: str) -> str:
+            # Split the text into code and non-code segments
+            segments = re.split(r"(```.*?```)", text, flags=re.DOTALL)
+            # Process only the non-code segments
+            for i, segment in enumerate(segments):
+                if not segment.startswith("```"):
+                    segments[i] = segment.format(**template_values)
+            return "".join(segments)
+
         # Replace placeholders in the system message
-        self.system_message = self.system_message.format(**template_values)
+        self.system_message = replace_placeholders(self.system_message)
 
         # Replace placeholders in each message in the conversation
         if self.conversation is not None:
             for message in self.conversation:
-                message.content = message.content.format(**template_values)
+                message.content = replace_placeholders(message.content)

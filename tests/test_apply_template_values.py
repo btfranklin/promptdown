@@ -56,3 +56,37 @@ You are a helpful expert at {topic}.
     if conversation := structured_prompt.conversation:
         assert conversation[0].content == "What is the capital of France?"
         assert conversation[1].content == "The capital of France is Paris."
+
+
+def test_system_message_with_json_example():
+    # Create a structured prompt from a string with placeholders
+    prompt_string = """
+# Create Research Questions Prompt
+
+## System Message
+
+There are numbered questions which will be provided. An unrelated value is {value}.
+
+Example:
+
+```json
+[
+    {"number": 1, "question": "First question"},
+    {"number": 2, "question": "Second question"},
+    // ...
+]
+```
+
+## Conversation
+
+**User:**
+This would be the user message
+"""
+
+    structured_prompt = StructuredPrompt.from_promptdown_string(prompt_string)
+
+    # Define template values to apply
+    template_values = {"value": "example value"}
+
+    # Action: Apply the template values
+    structured_prompt.apply_template_values(template_values)
