@@ -2,6 +2,8 @@
 
 ![Promptdown banner](https://raw.githubusercontent.com/btfranklin/promptdown/main/.github/social%20preview/promptdown_social_preview.png "Promptdown: structured instructions and conversations in markdown format for working with LLMs")
 
+[![Build Status](https://github.com/btfranklin/promptdown/actions/workflows/python-package.yml/badge.svg)](https://github.com/btfranklin/promptdown/actions/workflows/python-package.yml) [![Supports Python versions 3.10+](https://img.shields.io/pypi/pyversions/promptdown.svg)](https://pypi.python.org/pypi/promptdown)
+
 Promptdown is a Python package that allows you to express structured prompts for language models in a markdown format. It provides a simple and intuitive way to define and manage prompts, making it easier to work with language models in your projects.
 
 ## Installation
