@@ -28,12 +28,31 @@ pip install promptdown
 
 ### Basic Usage
 
-To use Promptdown, simply create a Promptdown file (`.prompt.md`) with the following format:
+To use Promptdown, simply create a Promptdown file (`.prompt.md`) with the following format. You can use either a System Message or a Developer Message (for newer model APIs), but not both:
 
 ```markdown
 # My Prompt
 
 ## System Message
+
+You are a helpful assistant.
+
+## Conversation
+
+| Role      | Content                                      |
+|-----------|----------------------------------------------|
+| User      | Hi, can you help me?                         |
+| Assistant | Of course! What do you need assistance with? |
+| User      | I'm having trouble with my code.             |
+| Assistant | I'd be happy to help. What seems to be the problem? |
+```
+
+Or alternatively:
+
+```markdown
+# My Prompt
+
+## Developer Message
 
 You are a helpful assistant.
 
@@ -56,7 +75,11 @@ structured_prompt = StructuredPrompt.from_promptdown_file('path/to/your_prompt_f
 print(structured_prompt)
 ```
 
-**Please note** that the `Conversation` section can be omitted, but the `System Message` section is always required.
+**Please note** that:
+
+- The `Conversation` section can be omitted
+- Either a `System Message` or `Developer Message` section is required, but not both
+- Use `Developer Message` for newer model APIs (like OpenAI's o1) that expect the "developer" role instead of "system"
 
 ### Parsing a Prompt from a String
 
@@ -68,7 +91,7 @@ from promptdown import StructuredPrompt
 promptdown_string = """
 # My Prompt
 
-## System Message
+## Developer Message
 
 You are a helpful assistant.
 
@@ -95,23 +118,23 @@ In the simplified format, roles are marked with bold text (**Role:**), and each 
 ```markdown
 # My Prompt
 
-## System Message
+## Developer Message
 
 You are a helpful assistant.
 
 ## Conversation
 
-**User:**  
+**User:**
 Hello, how are you doing today?  
 I need some help with a project.
 
-**Assistant:**  
+**Assistant:**
 I'm here to help. What's the issue you're encountering with your project?
 
-**User:**  
+**User:**
 I'm trying to integrate an API, but I keep running into errors.
 
-**Assistant:**  
+**Assistant:**
 Let's go through the integration process together. Can you show me the code where you're making the API calls?
 ```
 
@@ -127,7 +150,7 @@ from promptdown import StructuredPrompt
 promptdown_string = """
 # My Prompt
 
-## System Message
+## Developer Message
 
 You are a helpful assistant.
 
@@ -175,7 +198,7 @@ To incorporate template strings in your Promptdown files, use curly braces `{var
 ```markdown
 # My Prompt
 
-## System Message
+## Developer Message
 
 You are a helpful assistant in {topic}.
 
