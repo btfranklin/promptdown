@@ -16,13 +16,14 @@ class Message:
 
     def __post_init__(self):
         """
-        Validate the role to ensure that it does not use the reserved role "System".
+        Validate the role to ensure that it does not use reserved roles ("System" or "Developer").
         Raises:
-            ValueError: If the role is set to "System", which is reserved.
+            ValueError: If the role is a reserved role that cannot be used for conversation messages.
         """
-        if self.role.lower() == "system":
+        reserved_roles = {"system", "developer"}
+        if self.role.lower() in reserved_roles:
             raise ValueError(
-                "The role 'System' is reserved and cannot be used for conversation messages."
+                f"The role '{self.role}' is reserved and cannot be used for conversation messages."
             )
 
     def __eq__(self, other: object) -> bool:
@@ -47,23 +48,30 @@ class Message:
 @dataclass
 class StructuredPrompt:
     name: str
-    system_message: str
+    system_message: str | None = None
+    developer_message: str | None = None
     conversation: list[Message] | None = None
+
+    def __post_init__(self):
+        """
+        Validate that only one of system_message or developer_message is set.
+        Raises:
+            ValueError: If both or neither system_message and developer_message are set.
+        """
+        if (self.system_message is None) == (self.developer_message is None):
+            raise ValueError(
+                "Exactly one of system_message or developer_message must be set."
+            )
 
     def __eq__(self, other: object) -> bool:
         """
-        Check equality between two StructuredPrompt instances based on name, system_message, and conversation.
-
-        Args:
-            other (object): The other object to compare with.
-
-        Returns:
-            bool: True if both are StructuredPrompts with the same name, system_message, and conversation; False otherwise.
+        Check equality between two StructuredPrompt instances.
         """
         if isinstance(other, StructuredPrompt):
             return (
                 self.name == other.name
                 and self.system_message == other.system_message
+                and self.developer_message == other.developer_message
                 and self.conversation == other.conversation
             )
         return False
@@ -223,7 +231,9 @@ class StructuredPrompt:
         name: str | None = None
         current_section: str | None = None
         system_message: str | None = None
+        developer_message: str | None = None
         system_message_lines: list[str] = []
+        developer_message_lines: list[str] = []
         conversation: list[Message] | None = []
         conversation_lines: list[str] = []
 
@@ -246,6 +256,11 @@ class StructuredPrompt:
                 if stripped_line:
                     system_message_lines.append(stripped_line)
             elif (
+                current_section == "developer message"
+            ):  # We are in the developer message section, so this is a line of the developer message
+                if stripped_line:
+                    developer_message_lines.append(stripped_line)
+            elif (
                 current_section == "conversation"
             ):  # We are in the conversation section, so this is a line of the conversation
                 conversation_lines.append(stripped_line)
@@ -255,19 +270,31 @@ class StructuredPrompt:
                 "No prompt name found in the promptdown string. A prompt name is required."
             )
 
-        if not system_message_lines:
-            raise ValueError(
-                "No system message found in the promptdown string. A system message is required."
-            )
+        if system_message_lines:
+            system_message = "\n".join(system_message_lines)
+        if developer_message_lines:
+            developer_message = "\n".join(developer_message_lines)
 
-        system_message = "\n".join(system_message_lines)
+        if not system_message_lines and not developer_message_lines:
+            raise ValueError(
+                "Neither system message nor developer message found in the promptdown string. One is required."
+            )
+        if system_message_lines and developer_message_lines:
+            raise ValueError(
+                "Both system message and developer message found in the promptdown string. Only one is allowed."
+            )
 
         if not conversation_lines:
             conversation = None
         else:
             conversation = cls._parse_conversation(conversation_lines)
 
-        return cls(name=name, system_message=system_message, conversation=conversation)
+        return cls(
+            name=name,
+            system_message=system_message,
+            developer_message=developer_message,
+            conversation=conversation,
+        )
 
     @classmethod
     def from_promptdown_file(cls, file_path: str) -> StructuredPrompt:
@@ -334,14 +361,17 @@ class StructuredPrompt:
         """
         lines: list[str] = []
 
-        # Add the name of the prompt
         lines.append(f"# {self.name}")
         lines.append("")
 
-        # Add the system message
-        lines.append("## System Message")
-        lines.append(self.system_message)
-        lines.append("")
+        if self.system_message is not None:
+            lines.append("## System Message")
+            lines.append(self.system_message)
+            lines.append("")
+        elif self.developer_message is not None:
+            lines.append("## Developer Message")
+            lines.append(self.developer_message)
+            lines.append("")
 
         if self.conversation is not None:
             # Add the conversation
@@ -396,8 +426,11 @@ class StructuredPrompt:
         """
         messages: list[dict[str, str | list[dict[str, Any]]]] = []
 
-        # Start with the system message
-        messages.append({"role": "system", "content": self.system_message})
+        # Start with either system or developer message
+        if self.system_message is not None:
+            messages.append({"role": "system", "content": self.system_message})
+        elif self.developer_message is not None:
+            messages.append({"role": "developer", "content": self.developer_message})
 
         # Add the conversation messages
         if self.conversation is not None:
@@ -431,8 +464,11 @@ class StructuredPrompt:
                     segments[i] = segment.format(**template_values)
             return "".join(segments)
 
-        # Replace placeholders in the system message
-        self.system_message = replace_placeholders(self.system_message)
+        # Replace placeholders in the system or developer message
+        if self.system_message is not None:
+            self.system_message = replace_placeholders(self.system_message)
+        elif self.developer_message is not None:
+            self.developer_message = replace_placeholders(self.developer_message)
 
         # Replace placeholders in each message in the conversation
         if self.conversation is not None:

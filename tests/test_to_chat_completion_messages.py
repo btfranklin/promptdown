@@ -174,3 +174,36 @@ def test_to_chat_completion_messages_with_names():
 
     messages = prompt.to_chat_completion_messages()
     assert messages == expected_messages
+
+
+def test_to_chat_completion_messages_with_developer_message():
+    prompt = StructuredPrompt(
+        name="Example Prompt",
+        developer_message="You are a helpful assistant.\n\nYou should try to provide clear and concise answers to the user's questions.",
+        conversation=[
+            Message(role="User", content="Hi, can you help me?"),
+            Message(
+                role="Assistant", content="Of course! What do you need assistance with?"
+            ),
+        ],
+    )
+
+    expected_messages = [
+        {
+            "role": "developer",
+            "content": "You are a helpful assistant.\n\nYou should try to provide clear and concise answers to the user's questions.",
+        },
+        {
+            "role": "user",
+            "content": [{"type": "text", "text": "Hi, can you help me?"}],
+        },
+        {
+            "role": "assistant",
+            "content": [
+                {"type": "text", "text": "Of course! What do you need assistance with?"}
+            ],
+        },
+    ]
+
+    messages = prompt.to_chat_completion_messages()
+    assert messages == expected_messages

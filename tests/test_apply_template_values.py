@@ -90,3 +90,40 @@ This would be the user message
 
     # Action: Apply the template values
     structured_prompt.apply_template_values(template_values)
+
+
+def test_apply_template_values_with_developer_message():
+    prompt_string = """
+# Test Prompt
+
+## Developer Message
+
+You are a helpful expert at {topic}. You specialize in {specialty}.
+
+## Conversation
+
+| Role | Content |
+|---|---|
+| User | What is the best practice for {concept}? |
+| Assistant | Let me explain the best practices for {concept} in {topic}. |
+"""
+    structured_prompt = StructuredPrompt.from_promptdown_string(prompt_string)
+
+    template_values = {
+        "topic": "Python",
+        "specialty": "async programming",
+        "concept": "coroutines",
+    }
+
+    structured_prompt.apply_template_values(template_values)
+
+    assert (
+        structured_prompt.developer_message
+        == "You are a helpful expert at Python. You specialize in async programming."
+    )
+    if conversation := structured_prompt.conversation:
+        assert conversation[0].content == "What is the best practice for coroutines?"
+        assert (
+            conversation[1].content
+            == "Let me explain the best practices for coroutines in Python."
+        )
