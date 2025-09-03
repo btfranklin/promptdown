@@ -72,6 +72,17 @@ def test_to_responses_input_empty_string_generates_single_part():
     ]
 
 
+def test_to_responses_input_map_flag_false_preserves_system():
+    prompt = StructuredPrompt(
+        name="Flag",
+        system_message="Sys",
+        conversation=[Message(role="User", content="Hi")],
+    )
+    result = prompt.to_responses_input(map_system_to_developer=False)
+    assert result[0]["role"] == "system"
+    assert result[1]["role"] == "user"
+
+
 def test_converter_legacy_chat_messages():
     legacy = [
         {"role": "system", "content": "Sys"},

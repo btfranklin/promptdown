@@ -3,26 +3,10 @@ import logging
 import re
 from dataclasses import dataclass
 from importlib import resources
-from typing import Any, Literal, TypedDict, cast
+from typing import Any, cast
+from .types import ResponsesMessage, ResponsesPart, Role
 
 _LOGGER = logging.getLogger(__name__)
-
-
-class ResponsesPart(TypedDict):
-    """Typed representation of a single Responses API content part.
-
-    Currently only supports text input via the "input_text" type.
-    """
-
-    type: Literal["input_text"]
-    text: str
-
-
-class ResponsesMessage(TypedDict):
-    """Typed representation of a single Responses API message."""
-
-    role: str  # typically "user", "assistant", or "developer"
-    content: list[ResponsesPart]
 
 
 @dataclass
@@ -331,7 +315,7 @@ class StructuredPrompt:
             _LOGGER.warning("Promptdown files should end with '.prompt.md'")
 
         try:
-            with open(file_path, "r") as file:
+            with open(file_path, "r", encoding="utf-8") as file:
                 promptdown_string = file.read()
         except FileNotFoundError:
             _LOGGER.error(f"File {file_path} not found.")
@@ -429,7 +413,7 @@ class StructuredPrompt:
         if not file_path.endswith(".prompt.md"):
             _LOGGER.warning("Promptdown files should end with '.prompt.md'")
 
-        with open(file_path, "w") as file:
+        with open(file_path, "w", encoding="utf-8") as file:
             file.write(self.to_promptdown_string())
 
     def to_chat_completion_messages(
@@ -521,7 +505,9 @@ class StructuredPrompt:
             if self.system_message is not None
             else self.developer_message
         )
-        messages.append({"role": head_role, "content": _to_parts(head_text)})
+        messages.append(
+            {"role": cast(Role, head_role), "content": _to_parts(head_text)}
+        )
 
         # Add conversation messages in order
         if self.conversation is not None:
@@ -529,7 +515,9 @@ class StructuredPrompt:
                 role = message.role.lower()
                 if map_system_to_developer and role == "system":
                     role = "developer"
-                messages.append({"role": role, "content": _to_parts(message.content)})
+                messages.append(
+                    {"role": cast(Role, role), "content": _to_parts(message.content)}
+                )
 
         return messages
 

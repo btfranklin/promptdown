@@ -8,17 +8,8 @@ their own namespace avoids confusion with methods on core types like
 
 from __future__ import annotations
 
-from typing import Any, Literal, TypedDict, cast
-
-
-class ResponsesPart(TypedDict):
-    type: Literal["input_text"]
-    text: str
-
-
-class ResponsesMessage(TypedDict):
-    role: str
-    content: list[ResponsesPart]
+from typing import Any, cast
+from .types import ResponsesMessage, ResponsesPart, Role
 
 
 def convert_chat_messages_to_responses_input(
@@ -78,6 +69,8 @@ def convert_chat_messages_to_responses_input(
         if map_system_to_developer and role == "system":
             role = "developer"
         content_value = m.get("content")
-        converted.append({"role": role, "content": _coerce_parts(content_value)})
+        converted.append(
+            {"role": cast(Role, role), "content": _coerce_parts(content_value)}
+        )
 
     return converted
