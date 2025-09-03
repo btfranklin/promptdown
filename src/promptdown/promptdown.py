@@ -3,9 +3,26 @@ import logging
 import re
 from dataclasses import dataclass
 from importlib import resources
-from typing import Any
+from typing import Any, Literal, TypedDict, cast
 
 _LOGGER = logging.getLogger(__name__)
+
+
+class ResponsesPart(TypedDict):
+    """Typed representation of a single Responses API content part.
+
+    Currently only supports text input via the "input_text" type.
+    """
+
+    type: Literal["input_text"]
+    text: str
+
+
+class ResponsesMessage(TypedDict):
+    """Typed representation of a single Responses API message."""
+
+    role: str  # typically "user", "assistant", or "developer"
+    content: list[ResponsesPart]
 
 
 @dataclass
@@ -442,6 +459,77 @@ class StructuredPrompt:
                 if message.name:
                     msg["name"] = message.name
                 messages.append(msg)
+
+        return messages
+
+    def to_responses_input(
+        self, map_system_to_developer: bool = True
+    ) -> list[ResponsesMessage]:
+        """Convert the prompt to the OpenAI Responses API input format.
+
+        Args:
+            map_system_to_developer (bool): When True, maps a leading "system" role
+                to "developer" for consistency with modern role nomenclature.
+
+        Returns:
+            list[ResponsesMessage]: Ordered list of messages with content parts
+            formatted for the Responses API.
+        """
+
+        def _to_parts(value: object) -> list[ResponsesPart]:
+            # If already a list of parts, pass through valid parts and coerce others
+            if isinstance(value, list):
+                parts: list[ResponsesPart] = []
+                for part in cast(list[Any], value):
+                    if isinstance(part, dict):
+                        part_dict = cast(dict[str, Any], part)
+                        if (
+                            part_dict.get("type") == "input_text"
+                            and "text" in part_dict
+                        ):
+                            text_value = part_dict.get("text")
+                            parts.append(
+                                {
+                                    "type": "input_text",
+                                    "text": (
+                                        "" if text_value is None else str(text_value)
+                                    ),
+                                }
+                            )
+                            continue
+                        # Fallback: coerce unknown dict shapes to text
+                        parts.append(
+                            {"type": "input_text", "text": str(cast(object, part))}
+                        )
+                    else:
+                        parts.append(
+                            {"type": "input_text", "text": str(cast(object, part))}
+                        )
+                # Guarantee non-empty parts
+                return parts if parts else [{"type": "input_text", "text": ""}]
+            # Otherwise coerce to a single input_text part
+            return [{"type": "input_text", "text": "" if value is None else str(value)}]
+
+        messages: list[ResponsesMessage] = []
+
+        # Add the leading system/developer message
+        head_role = "system" if self.system_message is not None else "developer"
+        if map_system_to_developer and head_role == "system":
+            head_role = "developer"
+        head_text = (
+            self.system_message
+            if self.system_message is not None
+            else self.developer_message
+        )
+        messages.append({"role": head_role, "content": _to_parts(head_text)})
+
+        # Add conversation messages in order
+        if self.conversation is not None:
+            for message in self.conversation:
+                role = message.role.lower()
+                if map_system_to_developer and role == "system":
+                    role = "developer"
+                messages.append({"role": role, "content": _to_parts(message.content)})
 
         return messages
 

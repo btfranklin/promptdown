@@ -174,6 +174,46 @@ response = client.chat.completions.create(
 )
 ```
 
+### Converting to OpenAI Responses input
+
+For the OpenAI Responses API, use `to_responses_input()` to emit messages in the expected format. Any prior `system` content is mapped to the `developer` role by default for consistency with newer models; you can disable this via `map_system_to_developer=False`.
+
+```python
+from promptdown import StructuredPrompt
+
+structured_prompt = StructuredPrompt.from_promptdown_string(promptdown_string)
+responses_input = structured_prompt.to_responses_input()
+
+# Example with the OpenAI SDK (Responses API)
+from openai import OpenAI
+client = OpenAI()
+
+result = client.responses.create(
+    model="gpt-5",
+    input=responses_input,
+    reasoning={"effort": "medium"},
+)
+```
+
+Notes:
+
+- `to_responses_input()` outputs a list of messages, each `{ "role": "<role>", "content": [{"type": "input_text", "text": "..."}] }`.
+- Content is always non-null; non-strings are coerced with `str(...)`.
+- Already-structured `input_text` parts are passed through; other shapes are coerced to text.
+- Current scope focuses on text parts; additional types (images/tools) can be added in the future.
+
+If you have legacy Chat Completions-style messages and want to convert them to Responses input, a convenience converter is available:
+
+```python
+from promptdown.converters import convert_chat_messages_to_responses_input
+
+legacy_messages = [
+    {"role": "system", "content": "You are helpful."},
+    {"role": "user", "content": [{"type": "text", "text": "Hello"}]},
+]
+responses_messages = convert_chat_messages_to_responses_input(legacy_messages)
+```
+
 ### Loading Prompts from Package Resources
 
 For applications where prompts are bundled within Python packages, Promptdown can load prompts directly from these resources. This approach is useful for distributing prompts alongside Python libraries or applications:
