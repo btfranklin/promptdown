@@ -39,12 +39,17 @@ You are a helpful assistant.
 
 ## Conversation
 
-| Role      | Content                                      |
-|-----------|----------------------------------------------|
-| User      | Hi, can you help me?                         |
-| Assistant | Of course! What do you need assistance with? |
-| User      | I'm having trouble with my code.             |
-| Assistant | I'd be happy to help. What seems to be the problem? |
+**User:**
+Hi, can you help me?
+
+**Assistant:**
+Of course! What do you need assistance with?
+
+**User:**
+I'm having trouble with my code.
+
+**Assistant:**
+I'd be happy to help. What seems to be the problem?
 ```
 
 Or alternatively:
@@ -58,12 +63,17 @@ You are a helpful assistant.
 
 ## Conversation
 
-| Role      | Content                                      |
-|-----------|----------------------------------------------|
-| User      | Hi, can you help me?                         |
-| Assistant | Of course! What do you need assistance with? |
-| User      | I'm having trouble with my code.             |
-| Assistant | I'd be happy to help. What seems to be the problem? |
+**User:**
+Hi, can you help me?
+
+**Assistant:**
+Of course! What do you need assistance with?
+
+**User:**
+I'm having trouble with my code.
+
+**Assistant:**
+I'd be happy to help. What seems to be the problem?
 ```
 
 Then, you can parse this file into a `StructuredPrompt` object using Promptdown:
@@ -80,6 +90,7 @@ print(structured_prompt)
 - The `Conversation` section can be omitted
 - Either a `System Message` or `Developer Message` section is required, but not both
 - Use `Developer Message` for newer model APIs (like OpenAI's o1) that expect the "developer" role instead of "system"
+- Conversations use a simplified format where roles are marked with bold text (`**Role:**`), allowing for multi-line messages.
 
 ### Parsing a Prompt from a String
 
@@ -97,48 +108,22 @@ You are a helpful assistant.
 
 ## Conversation
 
-| Role      | Content                                     |
-|-----------|---------------------------------------------|
-| User      | Hi, can you help me?                        |
-| Assistant | Of course! What do you need assistance with? |
-| User      | I'm having trouble with my code.            |
-| Assistant | I'd be happy to help. What seems to be the problem? |
+**User:**
+Hi, can you help me?
+
+**Assistant:**
+Of course! What do you need assistance with?
+
+**User:**
+I'm having trouble with my code.
+
+**Assistant:**
+I'd be happy to help. What seems to be the problem?
 """
 
 structured_prompt = StructuredPrompt.from_promptdown_string(promptdown_string)
 print(structured_prompt)
 ```
-
-### Simplified Conversation Format
-
-For scenarios where you need to include multi-line messages or prefer a more readable format, Promptdown also supports a simplified conversation format. This alternative is particularly useful for writing extended dialogues or when the conversation involves complex instructions that span multiple lines.
-
-In the simplified format, roles are marked with bold text (**Role:**), and each message can extend over multiple lines, allowing for more expressive and detailed conversations. Here's how you can structure a conversation using this format:
-
-```markdown
-# My Prompt
-
-## Developer Message
-
-You are a helpful assistant.
-
-## Conversation
-
-**User:**
-Hello, how are you doing today?  
-I need some help with a project.
-
-**Assistant:**
-I'm here to help. What's the issue you're encountering with your project?
-
-**User:**
-I'm trying to integrate an API, but I keep running into errors.
-
-**Assistant:**
-Let's go through the integration process together. Can you show me the code where you're making the API calls?
-```
-
-The simplified format is especially well-suited for complex templates where multiple template values and introductory message text need to be combined.
 
 ### Converting to Chat Completion Messages
 
@@ -156,11 +141,14 @@ You are a helpful assistant.
 
 ## Conversation
 
-| Role      | Content                                      |
-|-----------|----------------------------------------------|
-| User      | Hi, can you help me?                         |
-| Assistant | Of course! What do you need assistance with? |
-| User      | I'm having trouble with my code.             |
+**User:**
+Hi, can you help me?
+
+**Assistant:**
+Of course! What do you need assistance with?
+
+**User:**
+I'm having trouble with my code.
 """
 
 structured_prompt = StructuredPrompt.from_promptdown_string(promptdown_string)
@@ -244,12 +232,17 @@ You are a helpful assistant in {topic}.
 
 ## Conversation
 
-| Role      | Content                                         |
-|-----------|-------------------------------------------------|
-| User      | Hi, can you help me with {topic}?             |
-| Assistant | Of course! What specifically do you need help with in {topic}? |
-| User      | I'm having trouble understanding {concept}.  |
-| Assistant | No problem! Let's dive into {concept} together. |
+**User:**
+Hi, can you help me with {topic}?
+
+**Assistant:**
+Of course! What specifically do you need help with in {topic}?
+
+**User:**
+I'm having trouble understanding {concept}.
+
+**Assistant:**
+No problem! Let's dive into {concept} together.
 ```
 
 #### Applying Template Values
