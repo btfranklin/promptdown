@@ -105,7 +105,13 @@ class StructuredPrompt:
                     conversation.append(
                         Message(role=role, content=" ".join(content).strip())
                     )
-                    # Clear content to start collecting the next message
+                    content = []
+                elif content:
+                    # If there's content but no role, it's orphaned content.
+                    # We log a warning and discard it.
+                    _LOGGER.warning(
+                        "Orphaned content found before any role definition. Ignoring."
+                    )
                     content = []
 
                 # Extract the role name from the asterisks and colon, e.g., "**User:**"
