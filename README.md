@@ -90,7 +90,7 @@ print(structured_prompt)
 - The `Conversation` section can be omitted
 - Either a `System Message` or `Developer Message` section is required, but not both
 - Use `Developer Message` for newer model APIs (like OpenAI's o1) that expect the "developer" role instead of "system"
-- Conversations use a simplified format where roles are marked with bold text (`**Role:**`), allowing for multi-line messages.
+- Conversations use a simplified format where roles are marked with bold text (`**Role:**` or `**Role (Name):**` to include a name), allowing for multi-line messages.
 
 ### Parsing a Prompt from a String
 

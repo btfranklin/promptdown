@@ -55,3 +55,30 @@ That error usually occurs when you try to use a variable that hasn't been declar
 
     promptdown_string = prompt.to_promptdown_string()
     assert promptdown_string == expected_promptdown_string
+
+
+def test_to_promptdown_string_with_names():
+    prompt = StructuredPrompt(
+        name="Example Prompt with Names",
+        system_message="You are a helpful assistant.",
+        conversation=[
+            Message(role="User", content="Hi", name="Alice"),
+            Message(role="Assistant", content="Hello", name="Bob"),
+        ],
+    )
+
+    expected_promptdown_string = """# Example Prompt with Names
+
+## System Message
+You are a helpful assistant.
+
+## Conversation
+
+**User (Alice):**
+Hi
+
+**Assistant (Bob):**
+Hello
+"""
+    promptdown_string = prompt.to_promptdown_string()
+    assert promptdown_string == expected_promptdown_string

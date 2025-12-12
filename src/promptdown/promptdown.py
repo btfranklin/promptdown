@@ -27,24 +27,6 @@ class Message:
                 f"The role '{self.role}' is reserved and cannot be used for conversation messages."
             )
 
-    def __eq__(self, other: object) -> bool:
-        """
-        Check equality between two Message instances based on role, content, and name.
-
-        Args:
-            other (object): The other object to compare with.
-
-        Returns:
-            bool: True if both objects are Messages and have the same role, content, and name; False otherwise.
-        """
-        if isinstance(other, Message):
-            return (
-                self.role.lower() == other.role.lower()
-                and self.content == other.content
-                and self.name == other.name
-            )
-        return False
-
 
 @dataclass
 class StructuredPrompt:
@@ -64,19 +46,6 @@ class StructuredPrompt:
                 "Exactly one of system_message or developer_message must be set."
             )
 
-    def __eq__(self, other: object) -> bool:
-        """
-        Check equality between two StructuredPrompt instances.
-        """
-        if isinstance(other, StructuredPrompt):
-            return (
-                self.name == other.name
-                and self.system_message == other.system_message
-                and self.developer_message == other.developer_message
-                and self.conversation == other.conversation
-            )
-        return False
-
     @classmethod
     def _parse_conversation(cls, lines: list[str]) -> list[Message]:
         """
@@ -91,19 +60,28 @@ class StructuredPrompt:
         conversation: list[Message] = []
         known_roles = {"User", "Assistant"}
         role: str | None = None
+        name: str | None = None
         content: list[str] = []
+
+        # Regex to match **Role:** or **Role (Name):**
+        # Group 1: Role
+        # Group 2: Name (optional)
+        role_pattern = re.compile(r"^\*\*([a-zA-Z0-9_ ]+)(?:\s*\(([^)]+)\))?:\*\*$")
 
         for line in lines:
             # Strip leading/trailing whitespace from the current line
             line_strip = line.strip()
 
-            # If the line starts and ends with double asterisks, it's a role indicator
-            if line_strip.startswith("**") and line_strip.endswith(":**"):
+            # Check if the line matches the role pattern
+            match = role_pattern.match(line_strip)
+            if match:
                 # If a role is already set and there is accumulated content,
                 # add the message to the conversation list
                 if role and content:
                     conversation.append(
-                        Message(role=role, content=" ".join(content).strip())
+                        Message(
+                            role=role, content=" ".join(content).strip(), name=name
+                        )
                     )
                     content = []
                 elif content:
@@ -114,26 +92,36 @@ class StructuredPrompt:
                     )
                     content = []
 
-                # Extract the role name from the asterisks and colon, e.g., "**User:**"
-                role_line = line_strip.strip("*")
-                role, _, _ = role_line.partition(":")
+                # Extract role and name from the regex match
+                found_role = match.group(1).strip()
+                found_name = match.group(2).strip() if match.group(2) else None
 
-                # If the role is one of the known roles, update the role variable
-                if role in known_roles:
-                    role = role.strip()
+                # Verify if it is a known role
+                if found_role in known_roles:
+                    role = found_role
+                    name = found_name
                 else:
                     _LOGGER.warning(
-                        f"Unknown role '{role}' encountered in conversation."
+                        f"Unknown role '{found_role}' encountered in conversation."
                     )
                     role = None
+                    name = None
             else:
+                # Fallback: Check if it looks like a role but failed regex (e.g. "**:**")
+                if line_strip.startswith("**") and line_strip.endswith(":**"):
+                    _LOGGER.warning(
+                        f"Potential malformed role line encountered: '{line_strip}'"
+                    )
+
                 # If it's not a role indicator, consider it part of the message content
                 content.append(line)
 
         # If there is a role set and accumulated content after the last line,
         # append the last message to the conversation
         if role and content:
-            conversation.append(Message(role=role, content=" ".join(content).strip()))
+            conversation.append(
+                Message(role=role, content=" ".join(content).strip(), name=name)
+            )
 
         # Return the list of parsed messages
         return conversation
@@ -306,7 +294,11 @@ class StructuredPrompt:
             for message in self.conversation:
                 role = message.role
                 content = message.content
-                lines.append(f"**{role}:**")
+                name = message.name
+                if name:
+                    lines.append(f"**{role} ({name}):**")
+                else:
+                    lines.append(f"**{role}:**")
                 lines.append(content)
                 lines.append("")
 
@@ -356,6 +348,44 @@ class StructuredPrompt:
 
         return messages
 
+    def _coerce_to_response_parts(self, value: object) -> list[ResponsesPart]:
+        """
+        Coerce a message content value into a list of ResponsesPart objects.
+
+        Args:
+            value: The message content, which can be a string, a list of parts, or other types.
+
+        Returns:
+            list[ResponsesPart]: A list of well-formed ResponsesPart objects.
+        """
+        # If already a list of parts, pass through valid parts and coerce others
+        if isinstance(value, list):
+            parts: list[ResponsesPart] = []
+            for part in cast(list[Any], value):
+                if isinstance(part, dict):
+                    part_dict = cast(dict[str, Any], part)
+                    if part_dict.get("type") == "input_text" and "text" in part_dict:
+                        text_value = part_dict.get("text")
+                        parts.append(
+                            {
+                                "type": "input_text",
+                                "text": ("" if text_value is None else str(text_value)),
+                            }
+                        )
+                        continue
+                    # Fallback: coerce unknown dict shapes to text
+                    parts.append(
+                        {"type": "input_text", "text": str(cast(object, part))}
+                    )
+                else:
+                    parts.append(
+                        {"type": "input_text", "text": str(cast(object, part))}
+                    )
+            # Guarantee non-empty parts
+            return parts if parts else [{"type": "input_text", "text": ""}]
+        # Otherwise coerce to a single input_text part
+        return [{"type": "input_text", "text": "" if value is None else str(value)}]
+
     def to_responses_input(
         self, map_system_to_developer: bool = True
     ) -> list[ResponsesMessage]:
@@ -370,40 +400,6 @@ class StructuredPrompt:
             formatted for the Responses API.
         """
 
-        def _to_parts(value: object) -> list[ResponsesPart]:
-            # If already a list of parts, pass through valid parts and coerce others
-            if isinstance(value, list):
-                parts: list[ResponsesPart] = []
-                for part in cast(list[Any], value):
-                    if isinstance(part, dict):
-                        part_dict = cast(dict[str, Any], part)
-                        if (
-                            part_dict.get("type") == "input_text"
-                            and "text" in part_dict
-                        ):
-                            text_value = part_dict.get("text")
-                            parts.append(
-                                {
-                                    "type": "input_text",
-                                    "text": (
-                                        "" if text_value is None else str(text_value)
-                                    ),
-                                }
-                            )
-                            continue
-                        # Fallback: coerce unknown dict shapes to text
-                        parts.append(
-                            {"type": "input_text", "text": str(cast(object, part))}
-                        )
-                    else:
-                        parts.append(
-                            {"type": "input_text", "text": str(cast(object, part))}
-                        )
-                # Guarantee non-empty parts
-                return parts if parts else [{"type": "input_text", "text": ""}]
-            # Otherwise coerce to a single input_text part
-            return [{"type": "input_text", "text": "" if value is None else str(value)}]
-
         messages: list[ResponsesMessage] = []
 
         # Add the leading system/developer message
@@ -416,7 +412,10 @@ class StructuredPrompt:
             else self.developer_message
         )
         messages.append(
-            {"role": cast(Role, head_role), "content": _to_parts(head_text)}
+            {
+                "role": cast(Role, head_role),
+                "content": self._coerce_to_response_parts(head_text),
+            }
         )
 
         # Add conversation messages in order
@@ -426,7 +425,10 @@ class StructuredPrompt:
                 if map_system_to_developer and role == "system":
                     role = "developer"
                 messages.append(
-                    {"role": cast(Role, role), "content": _to_parts(message.content)}
+                    {
+                        "role": cast(Role, role),
+                        "content": self._coerce_to_response_parts(message.content),
+                    }
                 )
 
         return messages

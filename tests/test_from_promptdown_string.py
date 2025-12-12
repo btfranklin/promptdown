@@ -78,20 +78,11 @@ You are a helpful assistant.
 **User:**
 Hi, can you help me?
 
-**Assistant:**
+**Assistant (Bot Friend):**
 Of course! What do you need assistance with?
 
-**User:**
+**User (Alice):**
 I'm having trouble with my code.
-
-**Assistant:**
-I'd be happy to help. What seems to be the problem?
-
-**User:**
-I'm getting an error message that says "undefined variable".
-
-**Assistant:**
-That error usually occurs when you try to use a variable that hasn't been declared or assigned a value. Can you show me the code where you're encountering this error?
 """
 
     expected_prompt = StructuredPrompt(
@@ -102,21 +93,10 @@ That error usually occurs when you try to use a variable that hasn't been declar
             Message(
                 role="Assistant",
                 content="Of course! What do you need assistance with?",
+                name="Bot Friend",
             ),
             Message(
-                role="User", content="I'm having trouble with my code."
-            ),
-            Message(
-                role="Assistant",
-                content="I'd be happy to help. What seems to be the problem?",
-            ),
-            Message(
-                role="User",
-                content='I\'m getting an error message that says "undefined variable".',
-            ),
-            Message(
-                role="Assistant",
-                content="That error usually occurs when you try to use a variable that hasn't been declared or assigned a value. Can you show me the code where you're encountering this error?",
+                role="User", content="I'm having trouble with my code.", name="Alice"
             ),
         ],
     )
@@ -143,10 +123,10 @@ Hello, how are you?
 **Assistant:**
 I'm good, thank you! How can I assist you today?
 
-**User:**
+**User (Alice):**
 Could you help me with my project?
 
-**Assistant:**
+**Assistant (Bot):**
 Absolutely! What do you need help with?
 """
 
@@ -159,9 +139,9 @@ Absolutely! What do you need help with?
                 role="Assistant",
                 content="I'm good, thank you! How can I assist you today?",
             ),
-            Message(role="User", content="Could you help me with my project?"),
+            Message(role="User", content="Could you help me with my project?", name="Alice"),
             Message(
-                role="Assistant", content="Absolutely! What do you need help with?"
+                role="Assistant", content="Absolutely! What do you need help with?", name="Bot"
             ),
         ],
     )
@@ -170,3 +150,30 @@ Absolutely! What do you need help with?
     assert (
         actual_prompt == expected_prompt
     ), "Failed to parse simplified conversation format correctly."
+
+
+def test_from_promptdown_string_name_no_space():
+    """
+    Test that the parser handles `**Role(Name):**` (missing space) correctly.
+    """
+    promptdown_string = """
+# Test Prompt
+
+## System Message
+Sys
+
+## Conversation
+
+**User(Alice):**
+Content.
+"""
+    expected_prompt = StructuredPrompt(
+        name="Test Prompt",
+        system_message="Sys",
+        conversation=[
+            Message(role="User", content="Content.", name="Alice"),
+        ],
+    )
+    actual_prompt = StructuredPrompt.from_promptdown_string(promptdown_string)
+    assert actual_prompt == expected_prompt
+

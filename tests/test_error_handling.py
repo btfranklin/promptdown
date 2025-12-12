@@ -91,4 +91,4 @@ System
     # So it should warn "Unknown role '' encountered".
     prompt = StructuredPrompt.from_promptdown_string(prompt_string)
     assert prompt.conversation == []
-    assert "Unknown role '' encountered in conversation." in caplog.text
+    assert "Potential malformed role line encountered: '**:**'" in caplog.text
