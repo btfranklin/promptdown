@@ -78,72 +78,15 @@ class StructuredPrompt:
         return False
 
     @classmethod
-    def _parse_conversation_table(cls, lines: list[str]) -> list[Message]:
+    def _parse_conversation(cls, lines: list[str]) -> list[Message]:
         """
-        Parse the conversation from the given list of lines using the table-based format.
-
-        This method assumes that the conversation section follows a table structure,
-        where each row represents a message with columns like Role, Name (optional),
-        and Content.
+        Parse the conversation part of a promptdown string into a list of Message objects.
 
         Args:
-            lines (list[str]): A list of lines containing the conversation section.
+            lines (list[str]): The lines of the conversation section from a promptdown string.
 
         Returns:
-            list[Message]: A list of Message objects representing the parsed conversation.
-        """
-        conversation: list[Message] = []
-        headers: list[str] = []
-
-        for line in lines:
-            # Check if the line starts with "|", indicating a conversation row
-            if line.startswith("|"):
-                # Split the line by "|" and remove leading/trailing whitespace from each part
-                parts = [part.strip() for part in line.split("|") if part.strip()]
-
-                # If headers list is empty, it means we are parsing the first row which contains the headers
-                if not headers:
-                    headers = parts
-                else:
-                    # Skip the divider line (e.g., "|---|---|---|")
-                    if all(part == "-" * len(part) for part in parts):
-                        continue
-
-                    # Create a dictionary to store the message data
-                    message_data: dict[str, str] = {
-                        header.lower(): "" for header in headers
-                    }
-
-                    # Iterate over the headers and corresponding parts, and update the message data dictionary
-                    for header, value in zip(headers, parts):
-                        message_data[header.lower()] = value
-
-                    # Create a new Message object using the message data and append it to the conversation list
-                    conversation.append(
-                        Message(
-                            role=message_data.get("role", "user"),
-                            content=message_data.get("content", ""),
-                            name=message_data.get("name"),
-                        )
-                    )
-
-        # Return the parsed conversation list
-        return conversation
-
-    @classmethod
-    def _parse_conversation_simplified(cls, lines: list[str]) -> list[Message]:
-        """
-        Parse the conversation from the given list of lines using the simplified format.
-
-        In this format, each message is identified by the role specified with double asterisks
-        (**Role:**) at the beginning of the message. Each subsequent line without a new role
-        will be considered part of the message's content until the next role line is encountered.
-
-        Args:
-            lines (list[str]): A list of lines containing the conversation section.
-
-        Returns:
-            list[Message]: A list of Message objects representing the parsed conversation.
+            list[Message]: A list of Message instances parsed from the given lines.
         """
         conversation: list[Message] = []
         known_roles = {"User", "Assistant"}
@@ -188,32 +131,6 @@ class StructuredPrompt:
 
         # Return the list of parsed messages
         return conversation
-
-    @classmethod
-    def _parse_conversation(cls, lines: list[str]) -> list[Message]:
-        """
-        Parse the conversation part of a promptdown string into a list of Message objects.
-
-        Args:
-            lines (list[str]): The lines of the conversation section from a promptdown string.
-
-        Returns:
-            list[Message]: A list of Message instances parsed from the given lines.
-        """
-        # Skip empty lines until finding a non-whitespace character
-        for line in lines:
-            stripped_line = line.strip()
-
-            # If we find a line with non-whitespace content, check its first character
-            if stripped_line:
-                # If the first non-whitespace character is a pipe, it's a table format
-                if stripped_line[0] == "|":
-                    return cls._parse_conversation_table(lines)
-                # Otherwise, assume the simplified format
-                return cls._parse_conversation_simplified(lines)
-
-        # If no content is found, return an empty list
-        return []
 
     @classmethod
     def from_promptdown_string(cls, promptdown_string: str) -> StructuredPrompt:
@@ -379,26 +296,13 @@ class StructuredPrompt:
             lines.append("## Conversation")
             lines.append("")
 
-            # Check if any message has a name set
-            include_name_column = any(message.name for message in self.conversation)
-
-            # Add the table headers
-            headers = ["Role"]
-            if include_name_column:
-                headers.append("Name")
-            headers.append("Content")
-            lines.append(f"| {' | '.join(headers)} |")
-            lines.append(f"| {' | '.join(['---'] * len(headers))} |")
-
             # Add each message in the conversation
             for message in self.conversation:
                 role = message.role
                 content = message.content
-                if include_name_column:
-                    name = message.name if message.name is not None else ""
-                    lines.append(f"| {role} | {name} | {content} |")
-                else:
-                    lines.append(f"| {role} | {content} |")
+                lines.append(f"**{role}:**")
+                lines.append(content)
+                lines.append("")
 
         return "\n".join(lines)
 
