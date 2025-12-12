@@ -38,10 +38,11 @@ You are a helpful expert at {topic}.
 
 ## Conversation
 
-| Role | Content |
-|---|---|
-| User | What is the capital of {country}? |
-| Assistant | The capital of {country} is {capital}. |
+**User:**
+What is the capital of {country}?
+
+**Assistant:**
+The capital of {country} is {capital}.
 """
     structured_prompt = StructuredPrompt.from_promptdown_string(prompt_string)
 
@@ -53,9 +54,10 @@ You are a helpful expert at {topic}.
 
     # Assertions to check if the placeholders are correctly replaced
     assert structured_prompt.system_message == "You are a helpful expert at geography."
-    if conversation := structured_prompt.conversation:
-        assert conversation[0].content == "What is the capital of France?"
-        assert conversation[1].content == "The capital of France is Paris."
+    conversation = structured_prompt.conversation
+    assert conversation is not None
+    assert conversation[0].content == "What is the capital of France?"
+    assert conversation[1].content == "The capital of France is Paris."
 
 
 def test_system_message_with_json_example():
@@ -102,10 +104,11 @@ You are a helpful expert at {topic}. You specialize in {specialty}.
 
 ## Conversation
 
-| Role | Content |
-|---|---|
-| User | What is the best practice for {concept}? |
-| Assistant | Let me explain the best practices for {concept} in {topic}. |
+**User:**
+What is the best practice for {concept}?
+
+**Assistant:**
+Let me explain the best practices for {concept} in {topic}.
 """
     structured_prompt = StructuredPrompt.from_promptdown_string(prompt_string)
 
@@ -121,9 +124,10 @@ You are a helpful expert at {topic}. You specialize in {specialty}.
         structured_prompt.developer_message
         == "You are a helpful expert at Python. You specialize in async programming."
     )
-    if conversation := structured_prompt.conversation:
-        assert conversation[0].content == "What is the best practice for coroutines?"
-        assert (
-            conversation[1].content
-            == "Let me explain the best practices for coroutines in Python."
-        )
+    conversation = structured_prompt.conversation
+    assert conversation is not None
+    assert conversation[0].content == "What is the best practice for coroutines?"
+    assert (
+        conversation[1].content
+        == "Let me explain the best practices for coroutines in Python."
+    )
