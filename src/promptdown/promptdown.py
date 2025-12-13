@@ -86,10 +86,12 @@ class StructuredPrompt:
                     content = []
                 elif content:
                     # If there's content but no role, it's orphaned content.
-                    # We log a warning and discard it.
-                    _LOGGER.warning(
-                        "Orphaned content found before any role definition. Ignoring."
-                    )
+                    # We check if it is meaningful (non-whitespace) content before warning.
+                    orphaned_text = "".join(content).strip()
+                    if orphaned_text:
+                        _LOGGER.warning(
+                            "Orphaned content found before any role definition. Ignoring."
+                        )
                     content = []
 
                 # Extract role and name from the regex match

@@ -92,3 +92,34 @@ System
     prompt = StructuredPrompt.from_promptdown_string(prompt_string)
     assert prompt.conversation == []
     assert "Potential malformed role line encountered: '**:**'" in caplog.text
+
+def test_orphaned_whitespace_ignored(caplog):
+    """
+    Test that whitespace appearing before any role definition is silently ignored
+    and does NOT trigger a warning.
+    """
+    prompt_string = """
+# My Prompt
+
+## System Message
+System
+
+## Conversation
+
+  
+
+**User:**
+Content
+"""
+    # clear any previous logs
+    caplog.clear()
+    
+    prompt = StructuredPrompt.from_promptdown_string(prompt_string)
+    
+    # We expect NO warning about orphaned content because it's just whitespace
+    assert "Orphaned content found before any role definition. Ignoring." not in caplog.text
+    
+    # Verify the conversation matches parsed correctly
+    assert len(prompt.conversation) == 1
+    assert prompt.conversation[0].role == "User"
+    assert prompt.conversation[0].content == "Content"
