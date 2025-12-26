@@ -40,8 +40,12 @@ distribution = true
 [tool.pdm.build]
 excludes = ["tests/**"]
 
-[tool.pdm.dev-dependencies]
+
+[dependency-groups]
 dev = [
-    "pytest>=8.3.4",
-    "flake8>=7.1.1",
+    "pytest>=9.0.2",
+    "flake8>=7.3.0",
 ]
+
+[tool.pdm.scripts]
+test = "pytest"
