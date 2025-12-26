@@ -1,14 +1,13 @@
 from __future__ import annotations
 import logging
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from importlib import resources
 from typing import Any, cast
 from .types import (
     ChatCompletionContentPart,
     ChatCompletionMessage,
     ResponsesMessage,
-    ResponsesPart,
     Role,
 )
 from .converters import coerce_to_response_parts
@@ -118,7 +117,7 @@ class StructuredPrompt:
             else:
                 # Fallback: Check if it looks like a role but failed regex (e.g. "**:**")
                 if line_strip.startswith("**") and line_strip.endswith(":**"):
-                    _LOGGER.warning(
+                    raise ValueError(
                         f"Potential malformed role line encountered: '{line_strip}'"
                     )
 
@@ -407,7 +406,7 @@ class StructuredPrompt:
 
         return messages
 
-    def apply_template_values(self, template_values: dict[str, str]) -> None:
+    def apply_template_values(self, template_values: dict[str, str]) -> StructuredPrompt:
         """
         Apply template values to the placeholders in the prompt content, replacing them with the specified values.
         NOTE: Template values are not applied if the placeholder is within a triple-backtick code block,
@@ -415,6 +414,9 @@ class StructuredPrompt:
 
         Args:
             template_values (dict[str, str]): A dictionary mapping placeholders to their replacement values.
+
+        Returns:
+            StructuredPrompt: A new instance of StructuredPrompt with the template values applied.
         """
 
         def replace_placeholders(text: str) -> str:
@@ -426,13 +428,25 @@ class StructuredPrompt:
                     segments[i] = segment.format(**template_values)
             return "".join(segments)
 
+        # Create a copy of the current instance
+        new_prompt = replace(self)
+
         # Replace placeholders in the system or developer message
-        if self.system_message is not None:
-            self.system_message = replace_placeholders(self.system_message)
-        elif self.developer_message is not None:
-            self.developer_message = replace_placeholders(self.developer_message)
+        if new_prompt.system_message is not None:
+            new_prompt.system_message = replace_placeholders(new_prompt.system_message)
+        elif new_prompt.developer_message is not None:
+            new_prompt.developer_message = replace_placeholders(
+                new_prompt.developer_message
+            )
 
         # Replace placeholders in each message in the conversation
-        if self.conversation is not None:
-            for message in self.conversation:
-                message.content = replace_placeholders(message.content)
+        if new_prompt.conversation is not None:
+            # We need to deep copy the conversation list and messages because dataclasses.replace is shallow
+            new_conversation = []
+            for message in new_prompt.conversation:
+                new_message = replace(message)
+                new_message.content = replace_placeholders(new_message.content)
+                new_conversation.append(new_message)
+            new_prompt.conversation = new_conversation
+
+        return new_prompt

@@ -17,13 +17,17 @@ def test_apply_template_values_to_object():
     template_values = {"country": "France", "capital": "Paris", "topic": "geography"}
 
     # Action: Apply the template values
-    structured_prompt.apply_template_values(template_values)
+    new_prompt = structured_prompt.apply_template_values(template_values)
 
     # Assertions to check if the placeholders are correctly replaced
-    assert structured_prompt.system_message == "You are a helpful expert at geography."
-    if conversation := structured_prompt.conversation:
+    assert new_prompt.system_message == "You are a helpful expert at geography."
+    if conversation := new_prompt.conversation:
         assert conversation[0].content == "What is the capital of France?"
         assert conversation[1].content == "The capital of France is Paris."
+
+    # Assert immutability of original prompt
+    assert structured_prompt.system_message == "You are a helpful expert at {topic}."
+    assert structured_prompt.conversation[0].content == "What is the capital of {country}?"
 
 
 def test_apply_template_values_to_string():
@@ -50,14 +54,18 @@ The capital of {country} is {capital}.
     template_values = {"country": "France", "capital": "Paris", "topic": "geography"}
 
     # Action: Apply the template values
-    structured_prompt.apply_template_values(template_values)
+    new_prompt = structured_prompt.apply_template_values(template_values)
 
     # Assertions to check if the placeholders are correctly replaced
-    assert structured_prompt.system_message == "You are a helpful expert at geography."
-    conversation = structured_prompt.conversation
+    assert new_prompt.system_message == "You are a helpful expert at geography."
+    conversation = new_prompt.conversation
     assert conversation is not None
     assert conversation[0].content == "What is the capital of France?"
     assert conversation[1].content == "The capital of France is Paris."
+
+    # Assert immutability of original prompt
+    assert structured_prompt.system_message == "You are a helpful expert at {topic}."
+    assert structured_prompt.conversation[0].content == "What is the capital of {country}?"
 
 
 def test_system_message_with_json_example():
@@ -91,7 +99,9 @@ This would be the user message
     template_values = {"value": "example value"}
 
     # Action: Apply the template values
-    structured_prompt.apply_template_values(template_values)
+    new_prompt = structured_prompt.apply_template_values(template_values)
+    assert "example value" in new_prompt.system_message
+    assert "{value}" in structured_prompt.system_message
 
 
 def test_apply_template_values_with_developer_message():
@@ -118,16 +128,17 @@ Let me explain the best practices for {concept} in {topic}.
         "concept": "coroutines",
     }
 
-    structured_prompt.apply_template_values(template_values)
+    new_prompt = structured_prompt.apply_template_values(template_values)
 
     assert (
-        structured_prompt.developer_message
+        new_prompt.developer_message
         == "You are a helpful expert at Python. You specialize in async programming."
     )
-    conversation = structured_prompt.conversation
+    conversation = new_prompt.conversation
     assert conversation is not None
     assert conversation[0].content == "What is the best practice for coroutines?"
     assert (
         conversation[1].content
         == "Let me explain the best practices for coroutines in Python."
     )
+    assert "{topic}" in structured_prompt.developer_message

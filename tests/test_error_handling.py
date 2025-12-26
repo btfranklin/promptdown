@@ -89,9 +89,8 @@ System
     # This parses as a role line but extracts empty string as role.
     # The code checks `if role in known_roles`. "" is not in known_roles.
     # So it should warn "Unknown role '' encountered".
-    prompt = StructuredPrompt.from_promptdown_string(prompt_string)
-    assert prompt.conversation == []
-    assert "Potential malformed role line encountered: '**:**'" in caplog.text
+    with pytest.raises(ValueError, match="Potential malformed role line encountered:"):
+        StructuredPrompt.from_promptdown_string(prompt_string)
 
 def test_orphaned_whitespace_ignored(caplog):
     """
