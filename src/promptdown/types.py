@@ -14,3 +14,12 @@ class ResponsesPart(TypedDict):
 class ResponsesMessage(TypedDict):
     role: Role
     content: list[ResponsesPart]
+class ChatCompletionContentPart(TypedDict):
+    type: Literal["text"]
+    text: str
+
+
+class ChatCompletionMessage(TypedDict, total=False):
+    role: str
+    content: str | list[ChatCompletionContentPart]
+    name: str

@@ -4,7 +4,14 @@ import re
 from dataclasses import dataclass
 from importlib import resources
 from typing import Any, cast
-from .types import ResponsesMessage, ResponsesPart, Role
+from .types import (
+    ChatCompletionContentPart,
+    ChatCompletionMessage,
+    ResponsesMessage,
+    ResponsesPart,
+    Role,
+)
+from .converters import coerce_to_response_parts
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -322,14 +329,14 @@ class StructuredPrompt:
 
     def to_chat_completion_messages(
         self,
-    ) -> list[dict[str, str | list[dict[str, Any]]]]:
+    ) -> list[ChatCompletionMessage]:
         """
         Convert the StructuredPrompt's conversation into the structure needed for a chat completion API client.
 
         Returns:
-            list[dict[str, str | list[dict[str, Any]]]]: A list of message dictionaries suitable for a chat completion API client.
+            list[ChatCompletionMessage]: A list of message dictionaries suitable for a chat completion API client.
         """
-        messages: list[dict[str, str | list[dict[str, Any]]]] = []
+        messages: list[ChatCompletionMessage] = []
 
         # Start with either system or developer message
         if self.system_message is not None:
@@ -340,53 +347,18 @@ class StructuredPrompt:
         # Add the conversation messages
         if self.conversation is not None:
             for message in self.conversation:
-                content: list[dict[str, Any]] = [
+                content: list[ChatCompletionContentPart] = [
                     {"type": "text", "text": message.content}
                 ]
-                msg: dict[str, Any] = {"role": message.role.lower(), "content": content}
+                msg: ChatCompletionMessage = {
+                    "role": message.role.lower(),
+                    "content": content,
+                }
                 if message.name:
                     msg["name"] = message.name
                 messages.append(msg)
 
         return messages
-
-    def _coerce_to_response_parts(self, value: object) -> list[ResponsesPart]:
-        """
-        Coerce a message content value into a list of ResponsesPart objects.
-
-        Args:
-            value: The message content, which can be a string, a list of parts, or other types.
-
-        Returns:
-            list[ResponsesPart]: A list of well-formed ResponsesPart objects.
-        """
-        # If already a list of parts, pass through valid parts and coerce others
-        if isinstance(value, list):
-            parts: list[ResponsesPart] = []
-            for part in cast(list[Any], value):
-                if isinstance(part, dict):
-                    part_dict = cast(dict[str, Any], part)
-                    if part_dict.get("type") == "input_text" and "text" in part_dict:
-                        text_value = part_dict.get("text")
-                        parts.append(
-                            {
-                                "type": "input_text",
-                                "text": ("" if text_value is None else str(text_value)),
-                            }
-                        )
-                        continue
-                    # Fallback: coerce unknown dict shapes to text
-                    parts.append(
-                        {"type": "input_text", "text": str(cast(object, part))}
-                    )
-                else:
-                    parts.append(
-                        {"type": "input_text", "text": str(cast(object, part))}
-                    )
-            # Guarantee non-empty parts
-            return parts if parts else [{"type": "input_text", "text": ""}]
-        # Otherwise coerce to a single input_text part
-        return [{"type": "input_text", "text": "" if value is None else str(value)}]
 
     def to_responses_input(
         self, map_system_to_developer: bool = True
@@ -416,7 +388,7 @@ class StructuredPrompt:
         messages.append(
             {
                 "role": cast(Role, head_role),
-                "content": self._coerce_to_response_parts(head_text),
+                "content": coerce_to_response_parts(head_text),
             }
         )
 
@@ -429,7 +401,7 @@ class StructuredPrompt:
                 messages.append(
                     {
                         "role": cast(Role, role),
-                        "content": self._coerce_to_response_parts(message.content),
+                        "content": coerce_to_response_parts(message.content),
                     }
                 )
 
