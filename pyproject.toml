@@ -1,6 +1,6 @@
 [project]
 name = "promptdown"
-version = "1.1.0"
+version = "1.1.1"
 description = "A package for loading promptdown files, which are a special type of markdown file for defining structured LLM prompts"
 authors = [
     {name = "B.T. Franklin", email = "brandon.franklin@gmail.com"},
