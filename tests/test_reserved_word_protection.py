@@ -8,7 +8,10 @@ def test_disallow_system_role_in_messages():
     assert "reserved and cannot be used" in str(excinfo.value)
 
     with pytest.raises(ValueError):
-        _ = Message(role="system", content="This should not be allowed, either.")
+        _ = Message(
+            role="system",
+            content="This should not be allowed, either.",
+        )
 
     with pytest.raises(ValueError):
         _ = Message(role="SYSTEM", content="Nor should this.")

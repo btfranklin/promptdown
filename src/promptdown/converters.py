@@ -24,16 +24,23 @@ def convert_chat_messages_to_responses_input(
 
     Args:
         messages: The list of legacy messages.
-        map_system_to_developer: When True, map any "system" role to "developer".
+        map_system_to_developer: When True, map any "system" role to
+            "developer".
 
     Returns:
         list[ResponsesMessage]: Messages formatted for the Responses API.
     """
 
+    def normalize_role(raw_role: object) -> Role:
+        role_value = str(raw_role if raw_role is not None else "user").lower()
+        if map_system_to_developer:
+            role_value = role_value.replace("system", "developer")
+        return cast(Role, role_value)
+
     return [
         {
-            "role": cast(Role, str(m.get("role", "user")).lower().replace("system", "developer") if map_system_to_developer else str(m.get("role", "user")).lower()),
-            "content": coerce_to_response_parts(m.get("content"))
+            "role": normalize_role(m.get("role", "user")),
+            "content": coerce_to_response_parts(m.get("content")),
         }
         for m in messages
     ]
@@ -44,7 +51,8 @@ def coerce_to_response_parts(value: object) -> list[ResponsesPart]:
     Coerce a message content value into a list of ResponsesPart objects.
 
     Args:
-        value: The message content, which can be a string, a list of parts, or other types.
+        value: The message content, which can be a string, a list of parts, or
+            other types.
 
     Returns:
         list[ResponsesPart]: A list of well-formed ResponsesPart objects.
@@ -54,20 +62,24 @@ def coerce_to_response_parts(value: object) -> list[ResponsesPart]:
         for part in cast(list[Any], value):
             if isinstance(part, dict):
                 part_dict = cast(dict[str, Any], part)
-                if part_dict.get("type") == "input_text" and "text" in part_dict:
+                if part_dict.get("type") == "input_text" and "text" in (
+                    part_dict
+                ):
                     text_value = part_dict.get("text")
+                    text = "" if text_value is None else str(text_value)
                     normalized.append(
                         {
                             "type": "input_text",
-                            "text": "" if text_value is None else str(text_value),
+                            "text": text,
                         }
                     )
                 elif part_dict.get("type") == "text" and "text" in part_dict:
                     text_value = part_dict.get("text")
+                    text = "" if text_value is None else str(text_value)
                     normalized.append(
                         {
                             "type": "input_text",
-                            "text": "" if text_value is None else str(text_value),
+                            "text": text,
                         }
                     )
                 else:
@@ -78,7 +90,8 @@ def coerce_to_response_parts(value: object) -> list[ResponsesPart]:
                 normalized.append(
                     {"type": "input_text", "text": str(cast(object, part))}
                 )
-        return normalized if normalized else [{"type": "input_text", "text": ""}]
-    return [{"type": "input_text", "text": "" if value is None else str(value)}]
-
-
+        if normalized:
+            return normalized
+        return [{"type": "input_text", "text": ""}]
+    text = "" if value is None else str(value)
+    return [{"type": "input_text", "text": text}]

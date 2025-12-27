@@ -9,25 +9,41 @@ def test_apply_template_values_to_object():
         system_message="You are a helpful expert at {topic}.",
         conversation=[
             Message(role="User", content="What is the capital of {country}?"),
-            Message(role="Assistant", content="The capital of {country} is {capital}."),
+            Message(
+                role="Assistant",
+                content="The capital of {country} is {capital}.",
+            ),
         ],
     )
 
     # Define template values to apply
-    template_values = {"country": "France", "capital": "Paris", "topic": "geography"}
+    template_values = {
+        "country": "France",
+        "capital": "Paris",
+        "topic": "geography",
+    }
 
     # Action: Apply the template values
     new_prompt = structured_prompt.apply_template_values(template_values)
 
     # Assertions to check if the placeholders are correctly replaced
-    assert new_prompt.system_message == "You are a helpful expert at geography."
+    assert (
+        new_prompt.system_message
+        == "You are a helpful expert at geography."
+    )
     if conversation := new_prompt.conversation:
         assert conversation[0].content == "What is the capital of France?"
         assert conversation[1].content == "The capital of France is Paris."
 
     # Assert immutability of original prompt
-    assert structured_prompt.system_message == "You are a helpful expert at {topic}."
-    assert structured_prompt.conversation[0].content == "What is the capital of {country}?"
+    assert (
+        structured_prompt.system_message
+        == "You are a helpful expert at {topic}."
+    )
+    assert (
+        structured_prompt.conversation[0].content
+        == "What is the capital of {country}?"
+    )
 
 
 def test_apply_template_values_to_string():
@@ -51,47 +67,65 @@ The capital of {country} is {capital}.
     structured_prompt = StructuredPrompt.from_promptdown_string(prompt_string)
 
     # Define template values to apply
-    template_values = {"country": "France", "capital": "Paris", "topic": "geography"}
+    template_values = {
+        "country": "France",
+        "capital": "Paris",
+        "topic": "geography",
+    }
 
     # Action: Apply the template values
     new_prompt = structured_prompt.apply_template_values(template_values)
 
     # Assertions to check if the placeholders are correctly replaced
-    assert new_prompt.system_message == "You are a helpful expert at geography."
+    assert (
+        new_prompt.system_message
+        == "You are a helpful expert at geography."
+    )
     conversation = new_prompt.conversation
     assert conversation is not None
     assert conversation[0].content == "What is the capital of France?"
     assert conversation[1].content == "The capital of France is Paris."
 
     # Assert immutability of original prompt
-    assert structured_prompt.system_message == "You are a helpful expert at {topic}."
-    assert structured_prompt.conversation[0].content == "What is the capital of {country}?"
+    assert (
+        structured_prompt.system_message
+        == "You are a helpful expert at {topic}."
+    )
+    assert (
+        structured_prompt.conversation[0].content
+        == "What is the capital of {country}?"
+    )
 
 
 def test_system_message_with_json_example():
     # Create a structured prompt from a string with placeholders
-    prompt_string = """
-# Create Research Questions Prompt
-
-## System Message
-
-There are numbered questions which will be provided. An unrelated value is {value}.
-
-Example:
-
-```json
-[
-    {"number": 1, "question": "First question"},
-    {"number": 2, "question": "Second question"},
-    // ...
-]
-```
-
-## Conversation
-
-**User:**
-This would be the user message
-"""
+    prompt_string = "\n".join(
+        [
+            "",
+            "# Create Research Questions Prompt",
+            "",
+            "## System Message",
+            "",
+            "There are numbered questions which will be provided. An "
+            "unrelated value is {value}.",
+            "",
+            "Example:",
+            "",
+            "```json",
+            "[",
+            '    {"number": 1, "question": "First question"},',
+            '    {"number": 2, "question": "Second question"},',
+            "    // ...",
+            "]",
+            "```",
+            "",
+            "## Conversation",
+            "",
+            "**User:**",
+            "This would be the user message",
+            "",
+        ]
+    )
 
     structured_prompt = StructuredPrompt.from_promptdown_string(prompt_string)
 
@@ -132,11 +166,15 @@ Let me explain the best practices for {concept} in {topic}.
 
     assert (
         new_prompt.developer_message
-        == "You are a helpful expert at Python. You specialize in async programming."
+        == "You are a helpful expert at Python. You specialize in async "
+        "programming."
     )
     conversation = new_prompt.conversation
     assert conversation is not None
-    assert conversation[0].content == "What is the best practice for coroutines?"
+    assert (
+        conversation[0].content
+        == "What is the best practice for coroutines?"
+    )
     assert (
         conversation[1].content
         == "Let me explain the best practices for coroutines in Python."

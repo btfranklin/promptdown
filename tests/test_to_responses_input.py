@@ -17,9 +17,15 @@ def test_to_responses_input_basic_and_order_and_role_map():
     result = prompt.to_responses_input()
 
     assert result == [
-        {"role": "developer", "content": [{"type": "input_text", "text": "Preamble"}]},
+        {
+            "role": "developer",
+            "content": [{"type": "input_text", "text": "Preamble"}],
+        },
         {"role": "user", "content": [{"type": "input_text", "text": "Hi"}]},
-        {"role": "assistant", "content": [{"type": "input_text", "text": "Hello"}]},
+        {
+            "role": "assistant",
+            "content": [{"type": "input_text", "text": "Hello"}],
+        },
     ]
 
 
@@ -33,7 +39,9 @@ def test_to_responses_input_coerces_non_string_content():
     )
 
     result = prompt.to_responses_input()
-    assert result[0]["content"] == [{"type": "input_text", "text": "Dev msg"}]
+    assert result[0]["content"] == [
+        {"type": "input_text", "text": "Dev msg"}
+    ]
     assert result[1]["content"] == [{"type": "input_text", "text": "123"}]
 
 
@@ -54,8 +62,14 @@ def test_to_responses_input_passes_through_input_text_parts():
     ]
     converted = convert(messages)
     assert converted == [
-        {"role": "developer", "content": [{"type": "input_text", "text": "lead"}]},
-        {"role": "user", "content": [{"type": "input_text", "text": "already"}]},
+        {
+            "role": "developer",
+            "content": [{"type": "input_text", "text": "lead"}],
+        },
+        {
+            "role": "user",
+            "content": [{"type": "input_text", "text": "already"}],
+        },
     ]
 
 
@@ -67,7 +81,10 @@ def test_to_responses_input_empty_string_generates_single_part():
     )
     result = prompt.to_responses_input()
     assert result == [
-        {"role": "developer", "content": [{"type": "input_text", "text": ""}]},
+        {
+            "role": "developer",
+            "content": [{"type": "input_text", "text": ""}],
+        },
         {"role": "user", "content": [{"type": "input_text", "text": ""}]},
     ]
 
@@ -78,7 +95,9 @@ def test_to_responses_input_map_flag_false_preserves_system():
         system_message="Sys",
         conversation=[Message(role="User", content="Hi")],
     )
-    result = prompt.to_responses_input(map_system_to_developer=False)
+    result = prompt.to_responses_input(
+        map_system_to_developer=False
+    )
     assert result[0]["role"] == "system"
     assert result[1]["role"] == "user"
 
@@ -87,11 +106,20 @@ def test_converter_legacy_chat_messages():
     legacy = [
         {"role": "system", "content": "Sys"},
         {"role": "user", "content": [{"type": "text", "text": "Hi"}]},
-        {"role": "assistant", "content": [{"type": "input_text", "text": "Hello"}]},
+        {
+            "role": "assistant",
+            "content": [{"type": "input_text", "text": "Hello"}],
+        },
     ]
     converted = convert(legacy)
     assert converted == [
-        {"role": "developer", "content": [{"type": "input_text", "text": "Sys"}]},
+        {
+            "role": "developer",
+            "content": [{"type": "input_text", "text": "Sys"}],
+        },
         {"role": "user", "content": [{"type": "input_text", "text": "Hi"}]},
-        {"role": "assistant", "content": [{"type": "input_text", "text": "Hello"}]},
+        {
+            "role": "assistant",
+            "content": [{"type": "input_text", "text": "Hello"}],
+        },
     ]

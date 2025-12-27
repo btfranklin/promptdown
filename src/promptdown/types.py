@@ -14,6 +14,8 @@ class ResponsesPart(TypedDict):
 class ResponsesMessage(TypedDict):
     role: Role
     content: list[ResponsesPart]
+
+
 class ChatCompletionContentPart(TypedDict):
     type: Literal["text"]
     text: str

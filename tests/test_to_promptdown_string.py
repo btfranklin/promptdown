@@ -8,7 +8,8 @@ def test_to_promptdown_string_without_names():
         conversation=[
             Message(role="User", content="Hi, can you help me?"),
             Message(
-                role="Assistant", content="Of course! What do you need assistance with?"
+                role="Assistant",
+                content="Of course! What do you need assistance with?",
             ),
             Message(role="User", content="I'm having trouble with my code."),
             Message(
@@ -17,41 +18,53 @@ def test_to_promptdown_string_without_names():
             ),
             Message(
                 role="User",
-                content='I\'m getting an error message that says "undefined variable".',
+                content=(
+                    "I'm getting an error message that says "
+                    '"undefined variable".'
+                ),
             ),
             Message(
                 role="Assistant",
-                content="That error usually occurs when you try to use a variable that hasn't been declared "
-                + "or assigned a value. Can you show me the code where you're encountering this error?",
+                content=(
+                    "That error usually occurs when you try to use a variable "
+                    "that hasn't been declared or assigned a value. Can you "
+                    "show me the code where you're encountering this error?"
+                ),
             ),
         ],
     )
 
-    expected_promptdown_string = """# Example Prompt
-
-## System Message
-You are a helpful assistant.
-
-## Conversation
-
-**User:**
-Hi, can you help me?
-
-**Assistant:**
-Of course! What do you need assistance with?
-
-**User:**
-I'm having trouble with my code.
-
-**Assistant:**
-I'd be happy to help. What seems to be the problem?
-
-**User:**
-I'm getting an error message that says "undefined variable".
-
-**Assistant:**
-That error usually occurs when you try to use a variable that hasn't been declared or assigned a value. Can you show me the code where you're encountering this error?
-"""  # noqa: E501
+    expected_promptdown_string = "\n".join(
+        [
+            "# Example Prompt",
+            "",
+            "## System Message",
+            "You are a helpful assistant.",
+            "",
+            "## Conversation",
+            "",
+            "**User:**",
+            "Hi, can you help me?",
+            "",
+            "**Assistant:**",
+            "Of course! What do you need assistance with?",
+            "",
+            "**User:**",
+            "I'm having trouble with my code.",
+            "",
+            "**Assistant:**",
+            "I'd be happy to help. What seems to be the problem?",
+            "",
+            "**User:**",
+            'I\'m getting an error message that says "undefined variable".',
+            "",
+            "**Assistant:**",
+            "That error usually occurs when you try to use a variable that "
+            "hasn't been declared or assigned a value. Can you show me the "
+            "code where you're encountering this error?",
+            "",
+        ]
+    )
 
     promptdown_string = prompt.to_promptdown_string()
     assert promptdown_string == expected_promptdown_string

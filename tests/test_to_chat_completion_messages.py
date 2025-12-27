@@ -4,11 +4,16 @@ from promptdown import StructuredPrompt, Message
 def test_to_chat_completion_messages_without_names():
     prompt = StructuredPrompt(
         name="Example Prompt",
-        system_message="You are a helpful assistant.\n\nYou should try to provide clear and concise answers to the user's questions.",
+        system_message=(
+            "You are a helpful assistant.\n\n"
+            "You should try to provide clear and concise answers to the "
+            "user's questions."
+        ),
         conversation=[
             Message(role="User", content="Hi, can you help me?"),
             Message(
-                role="Assistant", content="Of course! What do you need assistance with?"
+                role="Assistant",
+                content="Of course! What do you need assistance with?",
             ),
             Message(role="User", content="I'm having trouble with my code."),
             Message(
@@ -17,12 +22,18 @@ def test_to_chat_completion_messages_without_names():
             ),
             Message(
                 role="User",
-                content='I\'m getting an error message that says "undefined variable".',
+                content=(
+                    "I'm getting an error message that says "
+                    '"undefined variable".'
+                ),
             ),
             Message(
                 role="Assistant",
-                content="That error usually occurs when you try to use a variable that hasn't been declared "
-                + "or assigned a value. Can you show me the code where you're encountering this error?",
+                content=(
+                    "That error usually occurs when you try to use a variable "
+                    "that hasn't been declared or assigned a value. Can you "
+                    "show me the code where you're encountering this error?"
+                ),
             ),
         ],
     )
@@ -30,7 +41,11 @@ def test_to_chat_completion_messages_without_names():
     expected_messages = [
         {
             "role": "system",
-            "content": "You are a helpful assistant.\n\nYou should try to provide clear and concise answers to the user's questions.",
+            "content": (
+                "You are a helpful assistant.\n\n"
+                "You should try to provide clear and concise answers to the "
+                "user's questions."
+            ),
         },
         {
             "role": "user",
@@ -39,19 +54,26 @@ def test_to_chat_completion_messages_without_names():
         {
             "role": "assistant",
             "content": [
-                {"type": "text", "text": "Of course! What do you need assistance with?"}
+                {
+                    "type": "text",
+                    "text": "Of course! What do you need assistance with?",
+                }
             ],
         },
         {
             "role": "user",
-            "content": [{"type": "text", "text": "I'm having trouble with my code."}],
+            "content": [
+                {"type": "text", "text": "I'm having trouble with my code."}
+            ],
         },
         {
             "role": "assistant",
             "content": [
                 {
                     "type": "text",
-                    "text": "I'd be happy to help. What seems to be the problem?",
+                    "text": (
+                        "I'd be happy to help. What seems to be the problem?"
+                    ),
                 }
             ],
         },
@@ -60,7 +82,10 @@ def test_to_chat_completion_messages_without_names():
             "content": [
                 {
                     "type": "text",
-                    "text": 'I\'m getting an error message that says "undefined variable".',
+                    "text": (
+                        "I'm getting an error message that says "
+                        '"undefined variable".'
+                    ),
                 }
             ],
         },
@@ -69,7 +94,12 @@ def test_to_chat_completion_messages_without_names():
             "content": [
                 {
                     "type": "text",
-                    "text": "That error usually occurs when you try to use a variable that hasn't been declared or assigned a value. Can you show me the code where you're encountering this error?",
+                    "text": (
+                        "That error usually occurs when you try to use a "
+                        "variable that hasn't been declared or assigned a "
+                        "value. Can you show me the code where you're "
+                        "encountering this error?"
+                    ),
                 }
             ],
         },
@@ -91,7 +121,9 @@ def test_to_chat_completion_messages_with_names():
                 content="Of course! What do you need assistance with?",
             ),
             Message(
-                role="User", name="Alice", content="I'm having trouble with my code."
+                role="User",
+                name="Alice",
+                content="I'm having trouble with my code.",
             ),
             Message(
                 role="Assistant",
@@ -101,12 +133,19 @@ def test_to_chat_completion_messages_with_names():
             Message(
                 role="User",
                 name="Alice",
-                content='I\'m getting an error message that says "undefined variable".',
+                content=(
+                    "I'm getting an error message that says "
+                    '"undefined variable".'
+                ),
             ),
             Message(
                 role="Assistant",
                 name="Bot",
-                content="That error usually occurs when you try to use a variable that hasn't been declared or assigned a value. Can you show me the code where you're encountering this error?",
+                content=(
+                    "That error usually occurs when you try to use a variable "
+                    "that hasn't been declared or assigned a value. Can you "
+                    "show me the code where you're encountering this error?"
+                ),
             ),
         ],
     )
@@ -126,7 +165,10 @@ def test_to_chat_completion_messages_with_names():
         {
             "role": "assistant",
             "content": [
-                {"type": "text", "text": "Of course! What do you need assistance with?"}
+                {
+                    "type": "text",
+                    "text": "Of course! What do you need assistance with?",
+                }
             ],
             "name": "Bot",
         },
@@ -145,7 +187,9 @@ def test_to_chat_completion_messages_with_names():
             "content": [
                 {
                     "type": "text",
-                    "text": "I'd be happy to help. What seems to be the problem?",
+                    "text": (
+                        "I'd be happy to help. What seems to be the problem?"
+                    ),
                 }
             ],
             "name": "Bot",
@@ -155,7 +199,10 @@ def test_to_chat_completion_messages_with_names():
             "content": [
                 {
                     "type": "text",
-                    "text": 'I\'m getting an error message that says "undefined variable".',
+                    "text": (
+                        "I'm getting an error message that says "
+                        '"undefined variable".'
+                    ),
                 }
             ],
             "name": "Alice",
@@ -165,7 +212,12 @@ def test_to_chat_completion_messages_with_names():
             "content": [
                 {
                     "type": "text",
-                    "text": "That error usually occurs when you try to use a variable that hasn't been declared or assigned a value. Can you show me the code where you're encountering this error?",
+                    "text": (
+                        "That error usually occurs when you try to use a "
+                        "variable that hasn't been declared or assigned a "
+                        "value. Can you show me the code where you're "
+                        "encountering this error?"
+                    ),
                 }
             ],
             "name": "Bot",
@@ -179,11 +231,16 @@ def test_to_chat_completion_messages_with_names():
 def test_to_chat_completion_messages_with_developer_message():
     prompt = StructuredPrompt(
         name="Example Prompt",
-        developer_message="You are a helpful assistant.\n\nYou should try to provide clear and concise answers to the user's questions.",
+        developer_message=(
+            "You are a helpful assistant.\n\n"
+            "You should try to provide clear and concise answers to the "
+            "user's questions."
+        ),
         conversation=[
             Message(role="User", content="Hi, can you help me?"),
             Message(
-                role="Assistant", content="Of course! What do you need assistance with?"
+                role="Assistant",
+                content="Of course! What do you need assistance with?",
             ),
         ],
     )
@@ -191,7 +248,11 @@ def test_to_chat_completion_messages_with_developer_message():
     expected_messages = [
         {
             "role": "developer",
-            "content": "You are a helpful assistant.\n\nYou should try to provide clear and concise answers to the user's questions.",
+            "content": (
+                "You are a helpful assistant.\n\n"
+                "You should try to provide clear and concise answers to the "
+                "user's questions."
+            ),
         },
         {
             "role": "user",
@@ -200,7 +261,10 @@ def test_to_chat_completion_messages_with_developer_message():
         {
             "role": "assistant",
             "content": [
-                {"type": "text", "text": "Of course! What do you need assistance with?"}
+                {
+                    "type": "text",
+                    "text": "Of course! What do you need assistance with?",
+                }
             ],
         },
     ]
