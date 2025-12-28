@@ -90,7 +90,8 @@ print(structured_prompt)
 - The `Conversation` section can be omitted
 - Either a `System Message` or `Developer Message` section is required, but not both
 - Use `Developer Message` for newer model APIs (like OpenAI's o1) that expect the "developer" role instead of "system"
-- Conversations use a simplified format where roles are marked with bold text (`**Role:**` or `**Role (Name):**` to include a name), allowing for multi-line messages.
+- Conversations use a simplified format where roles are marked with bold text (`**User:**` or `**Assistant:**`, optionally `**Role (Name):**` to include a name). Only `User` and `Assistant` roles are recognized; other roles are ignored with a warning, and conversation roles cannot be `system` or `developer`.
+- Conversation message lines are collapsed into a single line with spaces (blank lines are dropped).
 
 ### Parsing a Prompt from a String
 
@@ -127,7 +128,7 @@ print(structured_prompt)
 
 ### Converting to Chat Completion Messages
 
-The `to_chat_completion_messages` method converts a `StructuredPrompt` instance's conversation into a list of dictionaries suitable for chat completion API clients. This is useful when you need to send the structured conversation to an API that expects messages in a specific format. Here's an example of how to use this method:
+The `to_chat_completion_messages` method converts a `StructuredPrompt` instance into a list of dictionaries suitable for chat completion API clients. The returned list includes the system or developer message first, followed by the conversation messages. This is useful when you need to send the structured conversation to an API that expects messages in a specific format. Here's an example of how to use this method:
 
 ```python
 from promptdown import StructuredPrompt
@@ -261,14 +262,14 @@ template_values = {
     "concept": "decorators"
 }
 
-# Apply the template values
-structured_prompt.apply_template_values(template_values)
+# Apply the template values (returns a new StructuredPrompt)
+new_prompt = structured_prompt.apply_template_values(template_values)
 
 # Output the updated prompt
-print(structured_prompt)
+print(new_prompt)
 ```
 
-This will replace `{topic}` with "Python programming" and `{concept}` with "decorators" in the system message and conversation content. Using template strings in Promptdown allows for more flexible and context-sensitive interactions with language models.
+This returns a new prompt where `{topic}` becomes "Python programming" and `{concept}` becomes "decorators" in the system message and conversation content; the original `structured_prompt` stays unchanged. Template values are not applied inside triple-backtick code blocks. Using template strings in Promptdown allows for more flexible and context-sensitive interactions with language models.
 
 ## Contributing
 
