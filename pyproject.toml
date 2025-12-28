@@ -41,9 +41,6 @@ distribution = true
 
 [tool.pdm.build]
 excludes = ["tests/**"]
-includes = [
-    "src/promptdown/py.typed",
-]
 
 [dependency-groups]
 dev = [
