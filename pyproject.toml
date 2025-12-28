@@ -17,6 +17,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Intended Audience :: Developers",
@@ -40,7 +41,9 @@ distribution = true
 
 [tool.pdm.build]
 excludes = ["tests/**"]
-
+includes = [
+    "src/promptdown/py.typed",
+]
 
 [dependency-groups]
 dev = [
