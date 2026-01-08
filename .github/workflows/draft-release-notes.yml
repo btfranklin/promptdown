@@ -1,0 +1,23 @@
+name: Draft Release Notes
+
+on:
+    push:
+        tags:
+            - "v*.*.*"
+
+permissions:
+    contents: write
+
+jobs:
+    draft-release:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6.0.1
+              with:
+                  fetch-depth: 0
+            - name: Generate release notes
+              uses: btfranklin/release-notes-scribe@v0
+              with:
+                  openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  include_github_generated_notes: "true"
