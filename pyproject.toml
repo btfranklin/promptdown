@@ -36,6 +36,15 @@ Repository = "https://github.com/btfranklin/promptdown.git"
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
 
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.15.19",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]
+
 [tool.pdm]
 distribution = true
 
@@ -45,15 +54,7 @@ source = "scm"
 [tool.pdm.build]
 excludes = ["tests/**"]
 
-[dependency-groups]
-dev = [
-    "pytest>=9.0.2",
-    "ruff>=0.14.11",
-]
-
 [tool.pdm.scripts]
 test = "pytest"
 lint = "ruff check src tests"
 
-[tool.ruff.lint]
-select = ["E", "F", "W"]
